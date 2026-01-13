@@ -8,7 +8,7 @@ import time
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🥥",
+    page_icon="🌴",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -18,20 +18,19 @@ st.set_page_config(
 # ---------------------------------------------------------------------
 @st.cache_resource
 def load_model():
-    # Pastikan file best.pt ada di folder yang sama
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA "ACADEMIC TECH" (Style Keren tapi Serius)
+# 3. CSS: TEMA "ACADEMIC TECH" (PLUS GAYA UPLOAD & TABS)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* IMPORT FONT (Rajdhani untuk Judul, Share Tech Mono untuk Data) */
+    /* IMPORT FONT */
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
 
     /* BACKGROUND GRID */
     .stApp {
-        background-color: #020617; /* Hitam Kebiruan */
+        background-color: #020617;
         background-image: 
             radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 70%),
             linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
@@ -40,12 +39,12 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
-    /* WARNA TEKS UMUM */
-    h1, h2, h3, p, span, div, label {
+    /* TEXT COLOR */
+    h1, h2, h3, p, span, div, label, small {
         color: #e2e8f0;
     }
 
-    /* JUDUL UTAMA (RATA TENGAH & FORMAL) */
+    /* JUDUL UTAMA */
     h1 {
         font-family: 'Rajdhani', sans-serif;
         font-weight: 700;
@@ -61,10 +60,10 @@ st.markdown("""
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     }
     
-    /* SUBJUDUL (INFORMASI METODE) */
+    /* SUBJUDUL */
     .tech-subtitle {
         font-family: 'Share Tech Mono', monospace;
-        color: #38bdf8; /* Cyan Blue agar tetap modern */
+        color: #38bdf8;
         text-align: center;
         font-size: 0.9rem;
         letter-spacing: 1px;
@@ -73,13 +72,34 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* --- TOMBOL KAMERA --- */
-    [data-testid="stCameraInput"] {
+    /* --- CUSTOM TABS (SUPAYA RAPI) --- */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: transparent;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: rgba(15, 23, 42, 0.5);
+        border-radius: 4px 4px 0 0;
+        color: #94a3b8;
+        font-family: 'Share Tech Mono', monospace;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(56, 189, 248, 0.1) !important;
+        color: #38bdf8 !important;
+        border: 1px solid rgba(56, 189, 248, 0.3) !important;
+        border-bottom: none !important;
+    }
+
+    /* --- TOMBOL KAMERA & UPLOAD --- */
+    [data-testid="stCameraInput"], [data-testid="stFileUploader"] {
         border: 1px solid rgba(56, 189, 248, 0.3);
         background: rgba(15, 23, 42, 0.8);
         border-radius: 6px;
+        padding: 10px;
     }
-
+    
+    /* Tombol Take Photo */
     [data-testid="stCameraInput"] button {
         background-color: transparent !important;
         border: 1px solid #38bdf8 !important;
@@ -90,24 +110,23 @@ st.markdown("""
         transition: all 0.3s ease;
         border-radius: 4px !important;
     }
-
     [data-testid="stCameraInput"] button:hover {
         background-color: rgba(56, 189, 248, 0.1) !important;
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* --- KARTU HASIL (GLASS EFFECT) --- */
+    /* --- KARTU HASIL --- */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-left: 3px solid #38bdf8; /* Aksen garis biru di kiri */
+        border-left: 3px solid #38bdf8;
         backdrop-filter: blur(10px);
         padding: 25px;
         margin-top: 30px;
         position: relative;
     }
 
-    /* Hiasan Siku Teknis di Pojok Kanan */
+    /* Hiasan Siku */
     .tech-card::before {
         content: "";
         position: absolute;
@@ -119,7 +138,7 @@ st.markdown("""
 
     .data-label {
         font-family: 'Share Tech Mono', monospace;
-        color: #94a3b8; /* Abu-abu */
+        color: #94a3b8;
         font-size: 0.85rem;
         letter-spacing: 1px;
         display: block;
@@ -130,7 +149,7 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
         font-size: 1.5rem;
         font-weight: 700;
-        color: #f1f5f9; /* Putih Terang */
+        color: #f1f5f9;
         display: block;
     }
 
@@ -141,7 +160,7 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* Footer Status Akademis */
+    /* Footer Status */
     .status-bar {
         display: flex;
         justify-content: space-between;
@@ -153,7 +172,6 @@ st.markdown("""
         color: #38bdf8;
     }
 
-    /* Hilangkan Footer Bawaan Streamlit */
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     </style>
@@ -173,37 +191,49 @@ except Exception:
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# --- INPUT SECTION ---
-st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ SILAKAN AMBIL CITRA BUAH ]</p>', unsafe_allow_html=True)
+# --- PILIHAN INPUT (TABS) ---
+# Kita buat Tab agar pilihan Kamera dan Upload terpisah rapi
+tab1, tab2 = st.tabs(["📸 KAMERA LIVE", "📂 UPLOAD FILE"])
 
-img_file = st.camera_input("Kamera", label_visibility="hidden")
+img_file = None
+
+with tab1:
+    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO LANGSUNG ]</p>', unsafe_allow_html=True)
+    cam_input = st.camera_input("Kamera", label_visibility="hidden")
+    if cam_input:
+        img_file = cam_input
+
+with tab2:
+    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH CITRA DARI GALERI ]</p>', unsafe_allow_html=True)
+    upl_input = st.file_uploader("Upload", type=['jpg', 'png', 'jpeg'], label_visibility="hidden")
+    if upl_input:
+        img_file = upl_input
 
 # --- PROSES & OUTPUT ---
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Visualisasi Proses (Loading Bar)
+    # Visualisasi Loading
     progress_bar = st.progress(0)
     for i in range(100):
         time.sleep(0.005)
         progress_bar.progress(i + 1)
     
-    # Deteksi dengan YOLO
+    # Deteksi
     results = model(image)
-    res_plotted = results[0].plot()[:, :, ::-1] # Konversi BGR ke RGB
+    res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- TAMPILAN HASIL (FORMAL) ---
-    # Buka container kartu
+    # --- TAMPILAN HASIL (SESUAI PATOKAN ANDA) ---
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
     
     # Header Kartu
     st.markdown('<span class="data-label">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
-    # Tampilkan Gambar Hasil
+    # Gambar
     st.image(res_plotted, use_container_width=True)
     
-    # Informasi Hasil Deteksi (Menggunakan Kolom Streamlit agar Aman)
+    # INFORMASI DETEKSI (KOLOM)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -217,7 +247,7 @@ if img_file is not None:
         else:
             st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
 
-    # Footer Informasi Teknis
+    # FOOTER TEKNIS
     st.markdown(f'''
         <div class="status-bar">
             <span>METODE: YOLOv11-NANO</span>
@@ -226,5 +256,4 @@ if img_file is not None:
         </div>
     ''', unsafe_allow_html=True)
     
-    # Tutup container kartu
     st.markdown('</div>', unsafe_allow_html=True)
