@@ -8,7 +8,7 @@ import time
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🥥",
+    page_icon="🌴",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -249,7 +249,7 @@ if img_file is not None:
     with col2:
         st.markdown('<span class="data-label">STATUS DETEKSI</span>', unsafe_allow_html=True)
         if len(boxes) > 0:
-            st.markdown('<span class="data-value" style="color:#4ade80;">TERIDENTIFIKASI</span>', unsafe_allow_html=True)
+            st.markdown('<span class="data-value" style="color:#4ade80;">BERHASIL</span>', unsafe_allow_html=True)
         else:
             st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
 
