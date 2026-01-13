@@ -18,11 +18,10 @@ st.set_page_config(
 # ---------------------------------------------------------------------
 @st.cache_resource
 def load_model():
-    # Pastikan file best.pt ada di folder yang sama
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA ACADEMIC TECH (LAYOUT GABUNGAN 3 GAMBAR)
+# 3. CSS (TEMA ACADEMIC TECH)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
@@ -40,10 +39,7 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
-    /* TEXT COLOR */
-    h1, h2, h3, p, span, div, label, small {
-        color: #e2e8f0;
-    }
+    h1, h2, h3, p, span, div, label, small { color: #e2e8f0; }
 
     /* JUDUL UTAMA */
     h1 {
@@ -57,11 +53,9 @@ st.markdown("""
         -webkit-text-fill-color: transparent;
         text-align: center;
         margin-top: 10px;
-        margin-bottom: 5px;
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     }
     
-    /* SUBJUDUL */
     .tech-subtitle {
         font-family: 'Share Tech Mono', monospace;
         color: #38bdf8;
@@ -69,15 +63,14 @@ st.markdown("""
         font-size: 0.9rem;
         letter-spacing: 1px;
         margin-bottom: 30px;
-        text-transform: uppercase;
         opacity: 0.9;
     }
 
-    /* --- TABS STYLE (GARIS BIRU) --- */
+    /* TABS STYLE */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
         background-color: transparent;
-        border-bottom: 2px solid #38bdf8 !important; /* Garis Bawah Biru */
+        border-bottom: 2px solid #38bdf8 !important;
     }
     .stTabs [data-baseweb="tab"] {
         background-color: rgba(15, 23, 42, 0.5);
@@ -93,34 +86,19 @@ st.markdown("""
         border: 1px solid #38bdf8 !important;
         border-bottom: 1px solid #020617 !important;
     }
-    /* MENGUBAH INDIKATOR MERAH JADI BIRU */
     div[data-baseweb="tab-highlight"] {
         background-color: #38bdf8 !important;
     }
 
-    /* --- INPUTS --- */
+    /* INPUTS */
     [data-testid="stCameraInput"], [data-testid="stFileUploader"] {
         border: 1px solid rgba(56, 189, 248, 0.3);
         background: rgba(15, 23, 42, 0.8);
         border-radius: 6px;
         padding: 10px;
     }
-    [data-testid="stCameraInput"] button, [data-testid="stFileUploader"] button {
-        background-color: transparent !important;
-        border: 1px solid #38bdf8 !important;
-        color: #38bdf8 !important;
-        font-family: 'Share Tech Mono', monospace !important;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        transition: all 0.3s ease;
-        border-radius: 4px !important;
-    }
-    [data-testid="stCameraInput"] button:hover, [data-testid="stFileUploader"] button:hover {
-        background-color: rgba(56, 189, 248, 0.1) !important;
-        box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-    }
-
-    /* --- KARTU HASIL (CONTAINER) --- */
+    
+    /* CARD CONTAINER */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -135,8 +113,7 @@ st.markdown("""
         width: 15px; height: 15px;
         border-top: 1px solid #38bdf8; border-right: 1px solid #38bdf8;
     }
-    
-    /* Header Kartu */
+
     .data-header {
         font-family: 'Share Tech Mono', monospace;
         color: #94a3b8;
@@ -148,23 +125,20 @@ st.markdown("""
         padding-bottom: 10px;
     }
 
-    /* --- TABEL DATA BARIS (GAYA GAMBAR 1 & 2) --- */
+    /* TABEL DATA RAPI (VERTICAL) */
     .info-row {
         display: flex;
         justify-content: space-between;
         padding: 12px 0;
-        border-bottom: 1px solid rgba(56, 189, 248, 0.2); /* Garis Pemisah Tipis */
+        border-bottom: 1px solid rgba(56, 189, 248, 0.2);
         align-items: center;
     }
-    
     .info-label {
         font-family: 'Share Tech Mono', monospace;
-        color: #94a3b8; /* Abu-abu */
+        color: #94a3b8;
         font-size: 0.95rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
     }
-    
     .info-value {
         font-family: 'Rajdhani', sans-serif;
         color: #f1f5f9;
@@ -173,19 +147,15 @@ st.markdown("""
         text-align: right;
     }
 
-    /* --- FOOTER TEKNIS (GAYA GAMBAR 3) --- */
+    /* FOOTER */
     .status-bar {
-        display: flex;
-        justify-content: space-between;
+        display: flex; justify-content: space-between;
         background: rgba(0,0,0,0.2);
         border-top: 1px solid rgba(255,255,255,0.1);
-        padding: 10px 15px;
-        margin-top: 25px;
+        padding: 10px 15px; margin-top: 25px;
         border-radius: 4px;
         font-family: 'Share Tech Mono', monospace;
-        font-size: 0.7rem;
-        color: #38bdf8;
-        letter-spacing: 0.5px;
+        font-size: 0.7rem; color: #38bdf8;
     }
 
     footer {visibility: hidden;}
@@ -203,30 +173,26 @@ except Exception:
     st.error("Error: File model 'best.pt' tidak ditemukan.")
     st.stop()
 
-# --- HEADER ---
+# HEADER
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# --- PILIHAN INPUT (TABS) ---
+# INPUT TABS
 tab1, tab2 = st.tabs(["📸 KAMERA LIVE", "📂 UPLOAD FILE"])
-
 img_file = None
 
 with tab1:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO LANGSUNG ]</p>', unsafe_allow_html=True)
-    cam_input = st.camera_input("Kamera", label_visibility="hidden")
-    if cam_input: img_file = cam_input
-
+    cam = st.camera_input("Kamera", label_visibility="hidden")
+    if cam: img_file = cam
 with tab2:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH CITRA DARI GALERI ]</p>', unsafe_allow_html=True)
-    upl_input = st.file_uploader("Upload", type=['jpg', 'png', 'jpeg'], label_visibility="hidden")
-    if upl_input: img_file = upl_input
+    upl = st.file_uploader("Upload", type=['jpg','png','jpeg'], label_visibility="hidden")
+    if upl: img_file = upl
 
-# --- PROSES ---
+# PROSES
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Progress Bar Loading
+    # Progress Bar
     progress_bar = st.progress(0)
     for i in range(100):
         time.sleep(0.005)
@@ -237,22 +203,20 @@ if img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # =========================================================================
-    # TAMPILAN HASIL GABUNGAN 3 GAMBAR (DENGAN HTML MURNI)
-    # =========================================================================
+    # -------------------------------------------------------
+    # BAGIAN TAMPILAN HASIL (DIPISAH AGAR TIDAK ERROR CSS)
+    # -------------------------------------------------------
     
-    # 1. Buka Container
-    st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
+    # 1. BUKA CONTAINER KARTU
+    st.markdown('<div class="tech-card"><span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
-    # 2. Gambar
+    # 2. GAMBAR (Native Streamlit)
     st.image(res_plotted, use_container_width=True)
     
-    # 3. TABEL INFORMASI (GAYA LIST VERTIKAL)
-    # Ini menggabungkan struktur div info-row dengan teks yang diminta
-    st.markdown(f"""
+    # 3. INFORMASI & FOOTER (HTML MURNI)
+    # Kita simpan HTML dalam variabel dulu biar rapi
+    html_info = f"""
         <div style="margin-top: 20px;">
-            
             <div class="info-row">
                 <span class="info-label">JUMLAH OBJEK</span>
                 <span class="info-value">{len(boxes)} UNIT</span>
@@ -269,18 +233,17 @@ if img_file is not None:
                 <span class="info-label">MODEL AI</span>
                 <span class="info-value">YOLOv11 Nano</span>
             </div>
-            
         </div>
-    """, unsafe_allow_html=True)
 
-    # 4. FOOTER TEKNIS (BAHASA INGGRIS TEKNIS SEPERTI GAMBAR)
-    st.markdown(f'''
         <div class="status-bar">
             <span>METODE: YOLOv11</span>
             <span>THRESHOLD: 0.25</span>
             <span>MODUL: CV-PYTORCH</span>
         </div>
-    ''', unsafe_allow_html=True)
+    """
     
-    # Tutup Container
+    # Render HTML Informasi
+    st.markdown(html_info, unsafe_allow_html=True)
+    
+    # 4. TUTUP CONTAINER KARTU
     st.markdown('</div>', unsafe_allow_html=True)
