@@ -1,6 +1,7 @@
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
+import os
 
 # Konfigurasi Halaman
 st.set_page_config(page_title="Deteksi Sawit Cloud", page_icon="🌴")
@@ -41,3 +42,13 @@ if img_file is not None:
             st.success(f"Ditemukan {len(boxes)} objek sawit.")
         else:
             st.warning("Tidak ada sawit terdeteksi.")
+
+# Masukkan ini di app.py Anda
+def load_css_file(css_file_path):
+    # Cek apakah file benar-benar ada di sebelah app.py
+    if os.path.exists(css_file_path):
+        with open(css_file_path) as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    else:
+        # Jika file tidak ketemu (mungkin lupa upload), pakai style darurat
+        st.warning(f"File {css_file_path} tidak ditemukan di GitHub!")
