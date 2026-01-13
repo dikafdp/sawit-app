@@ -21,14 +21,14 @@ def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: HIGH-TECH GRID + COMBINED TABLE
+# 3. CSS: TEMA HIGH-TECH GRID + TABEL RAPI
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* IMPORT FONT (Rajdhani & Share Tech Mono) */
+    /* IMPORT FONT KEREN */
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
 
-    /* BACKGROUND GRID */
+    /* BACKGROUND GRID (TEMA UTAMA) */
     .stApp {
         background-color: #020617;
         background-image: 
@@ -112,7 +112,7 @@ st.markdown("""
         padding-bottom: 10px;
     }
 
-    /* --- STYLE TABEL RAPI (GABUNGAN) --- */
+    /* --- STYLE TABEL RAPI --- */
     .info-row {
         display: flex;
         justify-content: space-between;
@@ -134,11 +134,11 @@ st.markdown("""
         text-align: right;
     }
 
-    /* --- STYLE FOOTER STATUS BAR (GABUNGAN) --- */
+    /* --- STYLE FOOTER STATUS BAR --- */
     .status-bar {
         display: flex;
         justify-content: space-between;
-        background: rgba(255,255,255,0.03); /* Sedikit background beda */
+        background: rgba(255,255,255,0.03);
         border-top: 1px solid rgba(255,255,255,0.1);
         padding: 10px 15px;
         margin-top: 25px;
@@ -188,14 +188,20 @@ if img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- HASIL GABUNGAN (TABEL + FOOTER) ---
-    st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
+    # --- BAGIAN INI YANG KITA PERBAIKI AGAR TIDAK ERROR ---
+    # Kita menggunakan st.markdown(..., unsafe_allow_html=True)
+    # Agar HTML dirender dengan benar, bukan sebagai teks.
     
-    # Gambar Hasil
+    st.markdown(f"""
+    <div class="tech-card">
+        <span class="data-header">>> HASIL KLASIFIKASI CITRA</span>
+        
+        """, unsafe_allow_html=True)
+    
+    # Gambar ditampilkan dengan fungsi Streamlit biasa
     st.image(res_plotted, use_container_width=True)
     
-    # 1. TABEL INFORMASI UTAMA (Vertical Rapi)
+    # Lanjutan HTML untuk Tabel & Footer
     st.markdown(f"""
         <div style="margin-top: 20px; text-align: left;">
             
@@ -217,16 +223,11 @@ if img_file is not None:
             </div>
 
         </div>
-    """, unsafe_allow_html=True)
 
-    # 2. FOOTER TEKNIS (Status Bar di Bawah)
-    # Ini memberikan kesan dashboard sistem yang lengkap
-    st.markdown(f'''
         <div class="status-bar">
             <span>METODE: YOLOv11</span>
             <span>THRESHOLD: 0.25</span>
             <span>MODUL: CV-PYTORCH</span>
         </div>
-    ''', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
