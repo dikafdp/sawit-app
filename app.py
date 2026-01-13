@@ -58,6 +58,26 @@ st.markdown("""
         border-bottom: 2px solid #334155;
         padding-bottom: 20px;
     }
+    
+    /* CUSTOM TABS */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        justify-content: center;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: rgba(30, 41, 59, 0.5);
+        border-radius: 5px 5px 0 0;
+        color: #94a3b8;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #1e293b;
+        color: #4ade80;
+        border-bottom: 2px solid #4ade80;
+    }
 
     /* STYLE UNTUK INFORMASI (TABEL RAPI) */
     .info-container {
@@ -91,12 +111,6 @@ st.markdown("""
         font-weight: normal;
     }
 
-    /* BUTTON UPLOAD */
-    .stFileUploader label {
-        font-size: 1rem;
-        color: #cbd5e1;
-    }
-    
     /* HILANGKAN ELEMENT BAWAAN STREAMLIT YANG MENGGANGGU */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -109,32 +123,52 @@ st.markdown("""
 # ---------------------------------------------------------------------
 
 st.title("SISTEM DETEKSI KEMATANGAN SAWIT")
-st.markdown("<p style='text-align: center; color: #94a3b8; margin-top: -10px;'>Analisis Citra Digital Berbasis Deep Learning</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #94a3b8; margin-top: -10px; margin-bottom: 30px;'>Analisis Citra Digital Berbasis Deep Learning</p>", unsafe_allow_html=True)
 
-# Upload Section
-uploaded_file = st.file_uploader("Unggah Citra Sawit (JPG/PNG)", type=['jpg', 'png', 'jpeg'])
+# Membuat Tab agar UI tetap bersih (Upload vs Kamera)
+tab1, tab2 = st.tabs(["📁 UPLOAD FILE", "📷 KAMERA LIVE"])
 
-if uploaded_file is not None:
+input_image = None
+source_type = None
+
+# --- TAB 1: UPLOAD FILE ---
+with tab1:
+    uploaded_file = st.file_uploader("Pilih file gambar (JPG/PNG)", type=['jpg', 'png', 'jpeg'])
+    if uploaded_file:
+        input_image = Image.open(uploaded_file)
+        source_type = "Upload File"
+
+# --- TAB 2: KAMERA ---
+with tab2:
+    camera_file = st.camera_input("Ambil gambar langsung")
+    if camera_file:
+        input_image = Image.open(camera_file)
+        source_type = "Kamera Langsung"
+
+# ---------------------------------------------------------------------
+# 5. PROSES DETEKSI & TAMPILAN HASIL
+# ---------------------------------------------------------------------
+if input_image is not None:
+    st.write("---") # Garis pemisah
+    
     # Tampilkan spinner saat proses
-    with st.spinner('Sedang Menganalisis Citra...'):
-        # Buka gambar
-        image = Image.open(uploaded_file)
+    with st.spinner(f'Sedang Menganalisis Citra dari {source_type}...'):
         
         # Lakukan Inferensi (Deteksi)
-        results = model(image)
+        results = model(input_image)
         
         # Ambil hasil bounding box untuk data tabel
-        # results[0].boxes adalah container untuk hasil deteksi
         boxes = results[0].boxes 
         
         # Render ulang gambar dengan kotak deteksi (Plotting)
-        res_plotted = results[0].plot()[:, :, ::-1] # Konversi BGR ke RGB untuk PIL
+        # Plot mengembalikan array numpy BGR, perlu convert ke RGB
+        res_plotted = results[0].plot()[:, :, ::-1] 
 
         # Tampilkan Gambar Hasil
-        st.image(res_plotted, caption="Hasil Visualisasi Deteksi", use_column_width=True)
+        st.image(res_plotted, caption=f"Hasil Analisis ({source_type})", use_column_width=True)
 
         # ---------------------------------------------------------------------
-        # 5. INTEGRASI TABEL INFORMASI (Sesuai Request)
+        # 6. TABEL INFORMASI (Sesuai Request User)
         # ---------------------------------------------------------------------
         st.markdown(f"""
         <div class="info-container">
@@ -156,9 +190,9 @@ if uploaded_file is not None:
         """, unsafe_allow_html=True)
 
 else:
-    # Tampilan awal jika belum upload
+    # Pesan default jika belum ada input
     st.markdown("""
-    <div style="text-align: center; padding: 50px; border: 2px dashed #334155; border-radius: 10px; color: #64748b;">
-        Silakan unggah gambar buah sawit untuk memulai analisis.
+    <div style="text-align: center; padding: 40px; color: #64748b; font-size: 0.9rem;">
+        Pilih salah satu metode di atas (Upload atau Kamera) untuk memulai.
     </div>
     """, unsafe_allow_html=True)
