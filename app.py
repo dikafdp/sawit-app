@@ -11,7 +11,7 @@ from streamlit_webrtc import webrtc_streamer
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🥥",
+    page_icon="🌴",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -270,7 +270,7 @@ if is_static_detection and img_file is not None:
     
     st.image(res_plotted, use_container_width=True)
     
-    status_text = "TERIDENTIFIKASI" if len(boxes) > 0 else "TIDAK JELAS"
+    status_text = "BERHASIL" if len(boxes) > 0 else "TIDAK JELAS"
     status_color = "#4ade80" if len(boxes) > 0 else "#f472b6"
     
     # Tabel Info
@@ -301,3 +301,4 @@ if is_static_detection and img_file is not None:
     ''', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+
