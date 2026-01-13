@@ -5,13 +5,14 @@ import time
 import cv2
 import av
 from streamlit_webrtc import webrtc_streamer
+import numpy as np # Import Numpy untuk perhitungan rata-rata
 
 # ---------------------------------------------------------------------
 # 1. KONFIGURASI HALAMAN
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🥥",
+    page_icon="🌴",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -129,15 +130,9 @@ if 'line_width' not in st.session_state: st.session_state.line_width = 2
 # Callback Real-time
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
-    # Ambil nilai dari session state
-    c_conf = st.session_state.conf
-    c_iou = st.session_state.iou
-    c_line = st.session_state.line_width
-    
-    # Deteksi
-    results = model(img, conf=c_conf, iou=c_iou)
-    res_plotted = results[0].plot(line_width=c_line)
-    
+    # Deteksi dengan parameter dinamis
+    results = model(img, conf=st.session_state.conf, iou=st.session_state.iou)
+    res_plotted = results[0].plot(line_width=st.session_state.line_width)
     return av.VideoFrame.from_ndarray(res_plotted, format="bgr24")
 
 # ---------------------------------------------------------------------
@@ -146,18 +141,18 @@ def video_frame_callback(frame):
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# --- EXPANDER PENGATURAN LENGKAP ---
+# --- PANEL KONTROL ---
 with st.expander("⚙️ PANEL KONTROL PARAMETER"):
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.session_state.conf = st.slider("Confidence (Keyakinan)", 0.0, 1.0, 0.25, 0.05)
-        st.caption("Batas minimal keyakinan AI.")
+        st.session_state.conf = st.slider("Confidence", 0.0, 1.0, 0.25, 0.05)
+        st.caption("Akurasi minimal.")
     with c2:
-        st.session_state.iou = st.slider("IoU (Overlap)", 0.0, 1.0, 0.45, 0.05)
-        st.caption("Mengurangi kotak ganda.")
+        st.session_state.iou = st.slider("IoU Threshold", 0.0, 1.0, 0.45, 0.05)
+        st.caption("Overlap removal.")
     with c3:
         st.session_state.line_width = st.slider("Tebal Garis", 1, 5, 2, 1)
-        st.caption("Visualisasi kotak.")
+        st.caption("Visualisasi.")
 
 # --- TABS ---
 tab1, tab2, tab3 = st.tabs(["📸 SNAPSHOT", "📂 UPLOAD", "🔴 REAL-TIME"])
@@ -190,9 +185,9 @@ with tab3:
         async_processing=True
     )
     st.markdown('</div>', unsafe_allow_html=True)
-    st.info("ℹ️ Parameter di atas (Conf, IoU, Tebal) langsung berefek ke video ini.")
+    st.info("ℹ️ Klik START. Akurasi terlihat di label kotak pada video.")
 
-# --- PROSES STATIC ---
+# --- PROSES STATIC (FOTO) ---
 if is_static and img_file is not None:
     image = Image.open(img_file)
     
@@ -202,10 +197,25 @@ if is_static and img_file is not None:
         time.sleep(0.005)
         bar.progress(i+1)
         
-    # Deteksi dengan parameter dinamis
+    # Deteksi
     results = model(image, conf=st.session_state.conf, iou=st.session_state.iou)
     res_plotted = results[0].plot(line_width=st.session_state.line_width)[:, :, ::-1]
     boxes = results[0].boxes
+    
+    # -----------------------------------------------------
+    # PERHITUNGAN AKURASI (MATEMATIKA)
+    # -----------------------------------------------------
+    if len(boxes) > 0:
+        # Ambil semua nilai confidence, lalu rata-rata kan
+        avg_conf = boxes.conf.mean().item()
+        # Format jadi persen (misal 0.854 -> "85.4%")
+        accuracy_text = f"{avg_conf * 100:.1f}%"
+        status_text = "BERHASIL"
+        status_color = "#4ade80" # Hijau
+    else:
+        accuracy_text = "0%"
+        status_text = "TIDAK JELAS"
+        status_color = "#f472b6" # Merah
     
     # OUTPUT CARD
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
@@ -213,19 +223,24 @@ if is_static and img_file is not None:
     
     st.image(res_plotted, use_container_width=True)
     
-    status_text = "TERIDENTIFIKASI" if len(boxes) > 0 else "TIDAK JELAS"
-    status_color = "#4ade80" if len(boxes) > 0 else "#f472b6"
-    
+    # --- TABEL HASIL DENGAN AKURASI ---
     st.markdown(f"""
         <div style="margin-top: 20px;">
             <div class="info-row">
                 <span class="data-label">JUMLAH OBJEK</span>
                 <span class="data-value">{len(boxes)} UNIT</span>
             </div>
+            
+            <div class="info-row">
+                <span class="data-label">RATA-RATA AKURASI</span>
+                <span class="data-value" style="color: #38bdf8;">{accuracy_text}</span>
+            </div>
+
             <div class="info-row">
                 <span class="data-label">STATUS DETEKSI</span>
                 <span class="data-value" style="color: {status_color};">{status_text}</span>
             </div>
+            
             <div class="info-row" style="border-bottom: none;">
                 <span class="data-label">MODEL AI</span>
                 <span class="data-value">YOLOv11 Nano</span>
@@ -233,7 +248,7 @@ if is_static and img_file is not None:
         </div>
     """, unsafe_allow_html=True)
 
-    # Footer Teknis (Update real-time text)
+    # Footer
     st.markdown(f'''
         <div class="status-bar">
             <span>CONF: {st.session_state.conf}</span>
