@@ -18,11 +18,10 @@ st.set_page_config(
 # ---------------------------------------------------------------------
 @st.cache_resource
 def load_model():
-    # Pastikan file best.pt ada di folder yang sama
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA HIGH-TECH GRID (VISUAL TETAP KEREN)
+# 3. CSS: HIGH-TECH GRID + COMBINED TABLE
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
@@ -90,7 +89,7 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* KARTU HASIL (GLASS TECH) */
+    /* KARTU HASIL UTAMA */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -101,17 +100,8 @@ st.markdown("""
         position: relative;
     }
     
-    .tech-card::before {
-        content: "";
-        position: absolute;
-        top: -1px; right: -1px;
-        width: 15px; height: 15px;
-        border-top: 1px solid #38bdf8;
-        border-right: 1px solid #38bdf8;
-    }
-
-    /* Header di dalam Kartu */
-    .card-header {
+    /* Header Kartu */
+    .data-header {
         font-family: 'Share Tech Mono', monospace;
         color: #94a3b8;
         font-size: 0.85rem;
@@ -122,34 +112,41 @@ st.markdown("""
         padding-bottom: 10px;
     }
 
-    /* TEXT LABEL & VALUE (Untuk Kolom) */
-    .data-label {
-        font-family: 'Share Tech Mono', monospace;
-        color: #94a3b8;
-        font-size: 0.8rem;
-        letter-spacing: 1px;
-        display: block;
-        margin-bottom: 5px;
+    /* --- STYLE TABEL RAPI (GABUNGAN) --- */
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.2); /* Garis Cyan Tipis */
+        font-size: 1rem;
     }
     
-    .data-value {
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 1.6rem;
+    .info-label { 
+        font-family: 'Share Tech Mono', monospace; 
+        color: #94a3b8; /* Warna Label Abu */
+    }
+    
+    .info-value { 
+        font-family: 'Rajdhani', sans-serif; 
+        color: #f1f5f9; /* Warna Value Putih Terang */
         font-weight: 700;
-        color: #f1f5f9;
-        display: block;
+        font-size: 1.1rem;
+        text-align: right;
     }
 
-    /* FOOTER STATUS */
+    /* --- STYLE FOOTER STATUS BAR (GABUNGAN) --- */
     .status-bar {
         display: flex;
         justify-content: space-between;
+        background: rgba(255,255,255,0.03); /* Sedikit background beda */
         border-top: 1px solid rgba(255,255,255,0.1);
-        padding-top: 10px;
-        margin-top: 20px;
+        padding: 10px 15px;
+        margin-top: 25px;
+        border-radius: 4px;
         font-family: 'Share Tech Mono', monospace;
-        font-size: 0.7rem;
-        color: #38bdf8;
+        font-size: 0.75rem;
+        color: #38bdf8; /* Warna Cyan */
+        letter-spacing: 0.5px;
     }
 
     footer {visibility: hidden;}
@@ -180,7 +177,7 @@ img_file = st.camera_input("Kamera", label_visibility="hidden")
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Loading
+    # Visualisasi Loading
     progress_bar = st.progress(0)
     for i in range(100):
         time.sleep(0.005)
@@ -191,34 +188,44 @@ if img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- HASIL (LAYOUT GABUNGAN YANG ANDA MINTA) ---
+    # --- HASIL GABUNGAN (TABEL + FOOTER) ---
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    st.markdown('<span class="card-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
+    st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
     # Gambar Hasil
     st.image(res_plotted, use_container_width=True)
-    st.markdown("<br>", unsafe_allow_html=True) # Jarak sedikit
     
-    # --- BAGIAN YANG ANDA REQUEST (COLUMNS) ---
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown('<span class="data-label">JUMLAH OBJEK</span>', unsafe_allow_html=True)
-        st.markdown(f'<span class="data-value">{len(boxes)} UNIT</span>', unsafe_allow_html=True)
-        
-    with col2:
-        st.markdown('<span class="data-label">STATUS DETEKSI</span>', unsafe_allow_html=True)
-        if len(boxes) > 0:
-            st.markdown('<span class="data-value" style="color:#4ade80;">TERIDENTIFIKASI</span>', unsafe_allow_html=True)
-        else:
-            st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
+    # 1. TABEL INFORMASI UTAMA (Vertical Rapi)
+    st.markdown(f"""
+        <div style="margin-top: 20px; text-align: left;">
+            
+            <div class="info-row">
+                <span class="info-label">JUMLAH OBJEK</span>
+                <span class="info-value">{len(boxes)} UNIT</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">STATUS DETEKSI</span>
+                <span class="info-value" style="color: {'#4ade80' if len(boxes) > 0 else '#f87171'};">
+                    {'TERIDENTIFIKASI' if len(boxes) > 0 else 'TIDAK JELAS'}
+                </span>
+            </div>
+            
+            <div class="info-row" style="border-bottom: none;">
+                <span class="info-label">ARSITEKTUR MODEL</span>
+                <span class="info-value">YOLOv11 Nano</span>
+            </div>
 
-    # --- FOOTER TEKNIS REQUEST ANDA ---
+        </div>
+    """, unsafe_allow_html=True)
+
+    # 2. FOOTER TEKNIS (Status Bar di Bawah)
+    # Ini memberikan kesan dashboard sistem yang lengkap
     st.markdown(f'''
         <div class="status-bar">
-            <span>METODE: YOLOv11-NANO</span>
-            <span>CONFIDENCE THRESHOLD: 0.25</span>
-            <span>MODUL: COMPUTER VISION</span>
+            <span>METODE: YOLOv11</span>
+            <span>THRESHOLD: 0.25</span>
+            <span>MODUL: CV-PYTORCH</span>
         </div>
     ''', unsafe_allow_html=True)
     
