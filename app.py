@@ -6,17 +6,17 @@ from streamlit_lottie import st_lottie
 import time
 
 # ---------------------------------------------------------------------
-# 1. KONFIGURASI HALAMAN (WAJIB DI PALING ATAS)
+# 1. KONFIGURASI HALAMAN
 # ---------------------------------------------------------------------
 st.set_page_config(
-    page_title="Neon Sawit AI",
-    page_icon="🤖",
+    page_title="Sawit Vision AI",
+    page_icon="🌿",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
 # ---------------------------------------------------------------------
-# 2. FUNGSI LOADER (Animasi & Model)
+# 2. FUNGSI LOAD ASSETS
 # ---------------------------------------------------------------------
 def load_lottieurl(url):
     try:
@@ -27,217 +27,208 @@ def load_lottieurl(url):
 
 @st.cache_resource
 def load_model():
-    # Beri jeda sedikit biar animasi loading terasa dramatis
-    time.sleep(1.5) 
     return YOLO("best.pt")
 
-# Muat aset di awal
-lottie_cyber_drone = load_lottieurl("https://lottie.host/4b6e8f49-5c4d-4519-95ba-2747124d4b2d/3Y6q4uM9y0.json")
+# Animasi 'Scanning' yang lebih abstrak & elegan (bukan kartun drone)
+lottie_scan = load_lottieurl("https://lottie.host/9c33d077-7670-4cc7-b765-b34e40237731/8q1Yg7Zt6k.json")
 
 # ---------------------------------------------------------------------
-# 3. CSS CYBERPUNK TOTAL (ANIMATED & NEON)
+# 3. CSS: MODERN ELEGANT THEME (Deep Slate & Emerald)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* --- IMPORT FONT FUTURISTIK --- */
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400&display=swap');
+    /* Import Font Inter (Standar Desain Modern) */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-    /* --- BACKGROUND ANIMASI BERGERAK (Kunci "Keren") --- */
-    @keyframes gradientBG {
-        0% {background-position: 0% 50%;}
-        50% {background-position: 100% 50%;}
-        100% {background-position: 0% 50%;}
-    }
-
+    /* --- RESET BACKGROUND --- */
     .stApp {
-        /* Gradasi warna gelap neon: Biru Tua -> Ungu -> Hijau Teal */
-        background: linear-gradient(-45deg, #0a0f1f, #1a1a2e, #0f3030, #0a0f1f);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite; /* Bergerak terus menerus */
-        font-family: 'Roboto', sans-serif !important;
-        color: #e0e0e0;
+        background-color: #0f172a; /* Deep Slate (Gelap Elegan) */
+        font-family: 'Inter', sans-serif;
     }
 
-    /* --- JUDUL NEON --- */
-    @keyframes flicker {
-      0%, 18%, 22%, 25%, 53%, 57%, 100% {
-          text-shadow:
-          0 0 4px #fff,
-          0 0 11px #fff,
-          0 0 19px #fff,
-          0 0 40px #0fa,
-          0 0 80px #0fa,
-          0 0 90px #0fa,
-          0 0 100px #0fa,
-          0 0 150px #0fa;
-      }
-      20%, 24%, 55% {        
-          text-shadow: none;
-      }    
+    /* Warna Teks Umum */
+    h1, h2, h3, p, span, div {
+        color: #e2e8f0;
     }
 
+    /* --- HEADER STYLING --- */
     h1 {
-        font-family: 'Orbitron', sans-serif !important;
-        font-weight: 900 !important;
-        text-transform: uppercase;
-        color: #fff;
-        text-align: center;
-        /* Efek kedip neon */
-        animation: flicker 3s infinite alternate;     
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 0px;
+        background: linear-gradient(to right, #ffffff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+        color: #64748b !important; /* Abu-abu muted */
+        font-size: 1rem;
+        font-weight: 400;
+        margin-top: -10px;
     }
 
-    /* --- CUSTOM TOMBOL KAMERA (KOTAK CYBER) --- */
+    /* --- TOMBOL KAMERA (MINIMALIS) --- */
     [data-testid="stCameraInput"] {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(0, 255, 255, 0.2);
-        box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
-        border-radius: 15px;
-        padding: 15px;
-        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
     }
     
-    [data-testid="stCameraInput"]:hover {
-         border: 1px solid rgba(0, 255, 255, 0.8);
-         box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
-    }
-
-    /* Tombol 'Take Photo' di dalamnya */
+    /* Tombol Take Photo */
     [data-testid="stCameraInput"] button {
-        background: linear-gradient(90deg, #00f260, #0575e6) !important; /* Gradasi Hijau-Biru Elektrik */
-        border: none !important;
+        background-color: #10b981 !important; /* Emerald Green Matte */
         color: white !important;
-        font-family: 'Orbitron', sans-serif !important;
-        font-weight: bold !important;
-        letter-spacing: 2px;
-        border-radius: 4px !important; /* Sudut tajam futuristik */
-        padding: 15px 30px !important;
-        transition: all 0.4s ease !important;
-        clip-path: polygon(10% 0%, 100% 0, 100% 70%, 90% 100%, 0 100%, 0% 30%); /* Bentuk Cyberpunk */
-    }
-
-    [data-testid="stCameraInput"] button:hover {
-        transform: scale(1.05) translateY(-5px);
-        box-shadow: 0 10px 30px rgba(5, 117, 230, 0.7) !important;
-        background: linear-gradient(90deg, #0575e6, #00f260) !important;
-    }
-
-    /* --- KARTU HASIL (GLASSMORPHISM NEON) --- */
-    /* Animasi Masuk yang Bouncy (Membal) */
-    @keyframes bounceInUp {
-      from, 60%, 75%, 90%, to { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); }
-      from { opacity: 0; transform: translate3d(0, 100px, 0); }
-      60% { opacity: 1; transform: translate3d(0, -15px, 0); }
-      75% { transform: translate3d(0, 5px, 0); }
-      90% { transform: translate3d(0, -2px, 0); }
-      to { transform: translate3d(0, 0, 0); }
-    }
-
-    .cyber-card {
-        background: rgba(23, 23, 35, 0.7); /* Gelap transparan */
-        backdrop-filter: blur(20px); /* Efek kaca buram kuat */
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 24px;
-        border: 2px solid transparent;
-        /* Border gradasi neon */
-        background-image: linear-gradient(rgba(23, 23, 35, 0.7), rgba(23, 23, 35, 0.7)), 
-                          linear-gradient(135deg, #00ff87, #60efff);
-        background-origin: border-box;
-        background-clip: content-box, border-box;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(96, 239, 255, 0.2);
-        padding: 30px;
-        text-align: center;
-        margin-top: 30px;
-        /* Terapkan animasi masuk */
-        animation: bounceInUp 1s both;
-    }
-
-    .cyber-card-title {
-        font-family: 'Orbitron', sans-serif;
-        color: #60efff; /* Biru Neon */
-        font-size: 1.4rem;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 10px 20px !important;
+        transition: all 0.2s ease;
     }
     
-    .cyber-card img {
+    [data-testid="stCameraInput"] button:hover {
+        background-color: #059669 !important; /* Gelap sedikit saat hover */
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* --- HASIL CARD (ELEGANT GLASS) --- */
+    .result-card {
+        background: rgba(30, 41, 59, 0.7); /* Slate transparan */
+        backdrop-filter: blur(12px);       /* Blur halus */
+        border: 1px solid rgba(255, 255, 255, 0.08); /* Border tipis halus */
         border-radius: 16px;
-        border: 2px solid #00ff87; /* Garis hijau neon di gambar */
-        box-shadow: 0 0 20px rgba(0, 255, 135, 0.3);
+        padding: 24px;
+        margin-top: 30px;
+        text-align: center;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.8s ease-out;
     }
 
-    /* Badge Hasil Neon */
-    .neon-badge {
-        display: inline-block;
-        padding: 10px 25px;
-        margin-top: 25px;
-        border-radius: 50px;
-        font-family: 'Orbitron', sans-serif;
-        font-weight: bold;
-        font-size: 1.1rem;
-        box-shadow: 0 0 20px currentColor;
+    .result-title {
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        color: #94a3b8; /* Text muted */
+        margin-bottom: 20px;
+        display: block;
     }
 
-    /* Hapus elemen mengganggu */
+    /* Gambar Hasil */
+    .result-card img {
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* --- BADGE STATUS (CLEAN PILL) --- */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 16px;
+        margin-top: 20px;
+        border-radius: 999px; /* Pill shape */
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .pill-success {
+        background: rgba(16, 185, 129, 0.15); /* Hijau transparan lembut */
+        color: #34d399; /* Teks Hijau soft */
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .pill-warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    /* Animasi Halus */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# 4. LOGIKA APLIKASI (DENGAN WRAPPER HTML BARU)
+# 4. LOGIKA APLIKASI
 # ---------------------------------------------------------------------
 
-# --- HEADER ANIMASI ---
-col_anim, col_title = st.columns([1, 3])
-with col_anim:
-    if lottie_cyber_drone:
-        # Animasi drone di kiri
-        st_lottie(lottie_cyber_drone, height=130, key="drone")
+# --- HEADER SECTION ---
+col1, col2 = st.columns([1, 4])
+
+with col1:
+    # Animasi Scanning Icon (Kecil dan rapi di pojok)
+    if lottie_scan:
+        st_lottie(lottie_scan, height=70, key="scan_icon")
     else:
-        st.write("🛸")
-with col_title:
-    # Judul dengan efek kedip neon di CSS
-    st.markdown("<h1>CYBER PALM DETECT</h1>", unsafe_allow_html=True)
-    st.write("AI Powered Agricultural Scanner. System Online.")
+        st.write("🔬")
 
-st.markdown("---")
+with col2:
+    st.markdown("<h1>Sawit Quality Analysis</h1>", unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">AI-Powered Maturity Detection System</p>', unsafe_allow_html=True)
 
-# --- LOAD MODEL (DENGAN EFEK SPINNER KEREN) ---
-with st.spinner('⚡ Initializing Neural Network...'):
-    try:
-        model = load_model()
-    except Exception:
-        st.error("⚠️ SYSTEM FAILURE: Model 'best.pt' not found.")
-        st.stop()
+st.write("") # Spacer
 
-# --- KAMERA ---
-st.write("### 💠 Activate Scanner")
-img_file = st.camera_input("Label Hidden", label_visibility="hidden")
+# --- LOAD MODEL ---
+# Loading state yang bersih (tanpa spinner raksasa)
+try:
+    model = load_model()
+except Exception:
+    st.error("Model 'best.pt' not detected.")
+    st.stop()
+
+# --- MAIN CAMERA AREA ---
+img_file = st.camera_input("Input", label_visibility="hidden")
 
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Spinner saat proses
-    with st.spinner('🔄 Processing Data Stream...'):
-        results = model(image)
-        res_plotted = results[0].plot()[:, :, ::-1]
-        boxes = results[0].boxes
-        
-        # --- TAMPILAN HASIL (KARTU CYBERPUNK) ---
-        # Kita bungkus dengan div class 'cyber-card'
-        st.markdown('<div class="cyber-card">', unsafe_allow_html=True)
-        st.markdown('<div class="cyber-card-title">Scan Analysis Result</div>', unsafe_allow_html=True)
-        
-        st.image(res_plotted, use_container_width=True)
-        
-        # Badge Hasil Neon
-        if len(boxes) > 0:
-             # Warna Hijau Neon untuk sukses
-             st.markdown(f'<div class="neon-badge" style="color: #00ff87; border: 2px solid #00ff87;">✅ OBJECTS DETECTED: {len(boxes)}</div>', unsafe_allow_html=True)
-        else:
-             # Warna Merah Neon untuk gagal
-             st.markdown('<div class="neon-badge" style="color: #ff0055; border: 2px solid #ff0055;">⚠️ NO TARGET ACQUIRED</div>', unsafe_allow_html=True)
+    # Progress bar minimalis sebagai pengganti spinner
+    progress_text = "Analyzing image structure..."
+    my_bar = st.progress(0, text=progress_text)
 
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Simulasi loading sebentar (biar terasa prosesnya)
+    for percent_complete in range(100):
+        time.sleep(0.01)
+        my_bar.progress(percent_complete + 1, text=progress_text)
+    my_bar.empty() # Hilangkan bar setelah selesai
+
+    # Deteksi
+    results = model(image)
+    res_plotted = results[0].plot()[:, :, ::-1]
+    boxes = results[0].boxes
+    
+    # --- TAMPILAN HASIL (ELEGANT CARD) ---
+    st.markdown('<div class="result-card">', unsafe_allow_html=True)
+    st.markdown('<span class="result-title">Detection Result</span>', unsafe_allow_html=True)
+    
+    st.image(res_plotted, use_container_width=True)
+    
+    # Badge Logic
+    if len(boxes) > 0:
+        st.markdown(f'''
+            <div class="status-pill pill-success">
+                <span>✓ {len(boxes)} Palm Bunches Detected</span>
+            </div>
+        ''', unsafe_allow_html=True)
+        
+        # (Opsional) Tampilkan detail kelas dengan teks kecil rapi
+        names = model.names
+        class_list = [names[int(c)] for c in boxes.cls]
+        unique_classes = list(set(class_list))
+        st.markdown(f'<p style="color:#64748b; font-size:0.8rem; margin-top:10px;">Classification: {", ".join(unique_classes)}</p>', unsafe_allow_html=True)
+
+    else:
+        st.markdown('''
+            <div class="status-pill pill-warning">
+                <span>⚠ No objects identified</span>
+            </div>
+        ''', unsafe_allow_html=True)
+        
+    st.markdown('</div>', unsafe_allow_html=True)
