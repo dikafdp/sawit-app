@@ -5,14 +5,13 @@ import time
 import cv2
 import av
 from streamlit_webrtc import webrtc_streamer
-import numpy as np # Import Numpy untuk perhitungan rata-rata
 
 # ---------------------------------------------------------------------
 # 1. KONFIGURASI HALAMAN
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🌴",
+    page_icon="🥥",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -33,6 +32,7 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
 
+    /* BACKGROUND */
     .stApp {
         background-color: #020617;
         background-image: 
@@ -43,8 +43,10 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
+    /* COLORS */
     h1, h2, h3, p, span, div, label, small { color: #e2e8f0; }
 
+    /* TITLE */
     h1 {
         font-family: 'Rajdhani', sans-serif;
         font-weight: 700;
@@ -80,7 +82,7 @@ st.markdown("""
         border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.8); border-radius: 6px; padding: 10px;
     }
     
-    /* EXPANDER STYLE */
+    /* EXPANDER */
     .streamlit-expanderHeader {
         background-color: rgba(15, 23, 42, 0.8) !important;
         color: #38bdf8 !important;
@@ -88,6 +90,7 @@ st.markdown("""
         border: 1px solid rgba(56, 189, 248, 0.3) !important;
     }
 
+    /* BUTTONS */
     button {
         background-color: transparent !important; border: 1px solid #38bdf8 !important; color: #38bdf8 !important;
         font-family: 'Share Tech Mono', monospace !important; text-transform: uppercase; letter-spacing: 2px;
@@ -95,6 +98,7 @@ st.markdown("""
     }
     button:hover { background-color: rgba(56, 189, 248, 0.1) !important; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
 
+    /* TECH CARD RESULT */
     .tech-card {
         background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-left: 3px solid #38bdf8;
         backdrop-filter: blur(10px); padding: 25px; margin-top: 30px; position: relative;
@@ -121,7 +125,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# 4. LOGIKA & SESSION STATE
+# 4. SESSION STATE
 # ---------------------------------------------------------------------
 if 'conf' not in st.session_state: st.session_state.conf = 0.25
 if 'iou' not in st.session_state: st.session_state.iou = 0.45
@@ -130,7 +134,6 @@ if 'line_width' not in st.session_state: st.session_state.line_width = 2
 # Callback Real-time
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
-    # Deteksi dengan parameter dinamis
     results = model(img, conf=st.session_state.conf, iou=st.session_state.iou)
     res_plotted = results[0].plot(line_width=st.session_state.line_width)
     return av.VideoFrame.from_ndarray(res_plotted, format="bgr24")
@@ -141,41 +144,35 @@ def video_frame_callback(frame):
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# --- PANEL KONTROL ---
+# PANEL KONTROL
 with st.expander("⚙️ PANEL KONTROL PARAMETER"):
     c1, c2, c3 = st.columns(3)
     with c1:
         st.session_state.conf = st.slider("Confidence", 0.0, 1.0, 0.25, 0.05)
-        st.caption("Akurasi minimal.")
     with c2:
         st.session_state.iou = st.slider("IoU Threshold", 0.0, 1.0, 0.45, 0.05)
-        st.caption("Overlap removal.")
     with c3:
         st.session_state.line_width = st.slider("Tebal Garis", 1, 5, 2, 1)
-        st.caption("Visualisasi.")
 
-# --- TABS ---
+# TABS INPUT
 tab1, tab2, tab3 = st.tabs(["📸 SNAPSHOT", "📂 UPLOAD", "🔴 REAL-TIME"])
 
 img_file = None
 is_static = False
 
 with tab1:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO ]</p>', unsafe_allow_html=True)
     cam = st.camera_input("Kamera", label_visibility="hidden")
     if cam: 
         img_file = cam
         is_static = True
 
 with tab2:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH DARI GALERI ]</p>', unsafe_allow_html=True)
     upl = st.file_uploader("Upload", type=['jpg','png','jpeg'], label_visibility="hidden")
     if upl: 
         img_file = upl
         is_static = True
 
 with tab3:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ STREAMING LANGSUNG ]</p>', unsafe_allow_html=True)
     st.markdown('<div class="rtc-container">', unsafe_allow_html=True)
     webrtc_streamer(
         key="sawit-realtime",
@@ -185,9 +182,10 @@ with tab3:
         async_processing=True
     )
     st.markdown('</div>', unsafe_allow_html=True)
-    st.info("ℹ️ Klik START. Akurasi terlihat di label kotak pada video.")
 
-# --- PROSES STATIC (FOTO) ---
+# ---------------------------------------------------------------------
+# 6. LOGIKA HASIL (Perbaikan di sini agar tidak muncul kode HTML)
+# ---------------------------------------------------------------------
 if is_static and img_file is not None:
     image = Image.open(img_file)
     
@@ -202,38 +200,37 @@ if is_static and img_file is not None:
     res_plotted = results[0].plot(line_width=st.session_state.line_width)[:, :, ::-1]
     boxes = results[0].boxes
     
-    # -----------------------------------------------------
-    # PERHITUNGAN AKURASI (MATEMATIKA)
-    # -----------------------------------------------------
-    if len(boxes) > 0:
-        # Ambil semua nilai confidence, lalu rata-rata kan
-        avg_conf = boxes.conf.mean().item()
-        # Format jadi persen (misal 0.854 -> "85.4%")
-        accuracy_text = f"{avg_conf * 100:.1f}%"
-        status_text = "BERHASIL"
+    # Perhitungan Data
+    jml_objek = len(boxes)
+    if jml_objek > 0:
+        avg_conf = boxes.conf.mean().item() * 100
+        akurasi_text = f"{avg_conf:.1f}%"
+        status_text = "TERIDENTIFIKASI"
         status_color = "#4ade80" # Hijau
     else:
-        accuracy_text = "0%"
+        akurasi_text = "0%"
         status_text = "TIDAK JELAS"
-        status_color = "#f472b6" # Merah
-    
-    # OUTPUT CARD
+        status_color = "#f472b6" # Merah Muda
+
+    # TAMPILKAN HASIL
+    # 1. Buka Kartu
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
     st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
+    # 2. Gambar (Pakai st.image biasa agar aman)
     st.image(res_plotted, use_container_width=True)
     
-    # --- TABEL HASIL DENGAN AKURASI ---
-    st.markdown(f"""
+    # 3. Tabel Data (Disimpan dalam variabel string dulu agar RAPI)
+    html_tabel = f"""
         <div style="margin-top: 20px;">
             <div class="info-row">
                 <span class="data-label">JUMLAH OBJEK</span>
-                <span class="data-value">{len(boxes)} UNIT</span>
+                <span class="data-value">{jml_objek} UNIT</span>
             </div>
             
             <div class="info-row">
                 <span class="data-label">RATA-RATA AKURASI</span>
-                <span class="data-value" style="color: #38bdf8;">{accuracy_text}</span>
+                <span class="data-value" style="color: #38bdf8;">{akurasi_text}</span>
             </div>
 
             <div class="info-row">
@@ -246,9 +243,12 @@ if is_static and img_file is not None:
                 <span class="data-value">YOLOv11 Nano</span>
             </div>
         </div>
-    """, unsafe_allow_html=True)
+    """
+    
+    # Render Tabel HTML (PENTING: unsafe_allow_html=True)
+    st.markdown(html_tabel, unsafe_allow_html=True)
 
-    # Footer
+    # 4. Footer
     st.markdown(f'''
         <div class="status-bar">
             <span>CONF: {st.session_state.conf}</span>
@@ -257,4 +257,5 @@ if is_static and img_file is not None:
         </div>
     ''', unsafe_allow_html=True)
     
+    # Tutup Kartu
     st.markdown('</div>', unsafe_allow_html=True)
