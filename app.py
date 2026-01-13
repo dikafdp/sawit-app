@@ -1,43 +1,43 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer
-import av
 from ultralytics import YOLO
+from PIL import Image
 
-# 1. Konfigurasi Halaman
-st.set_page_config(page_title="Live Deteksi Sawit", page_icon="🌴")
-st.title("🌴 Real-Time Sawit Detection")
+# Konfigurasi Halaman
+st.set_page_config(page_title="Deteksi Sawit Cloud", page_icon="🌴")
+st.title("🌴 Deteksi Sawit (Mode Foto)")
+st.write("Arahkan kamera ke buah sawit, lalu klik tombol **Take Photo**.")
 
-# 2. Load Model (Cache biar kencang)
+# Load Model (Cache supaya cepat)
 @st.cache_resource
 def load_model():
     return YOLO("best.pt")
 
-model = load_model()
+try:
+    model = load_model()
+except Exception as e:
+    st.error("Model best.pt tidak ditemukan. Pastikan file ada di GitHub.")
 
-# 3. Fungsi Callback (Ini Jantungnya)
-# Fungsi ini dipanggil puluhan kali per detik untuk setiap frame video
-def video_frame_callback(frame):
-    # a. Ambil gambar dari kamera (format AV -> NumPy)
-    img = frame.to_ndarray(format="bgr24")
+# --- FITUR UTAMA: KAMERA JEPRET ---
+img_file = st.camera_input("Kamera")
 
-    # b. Deteksi dengan YOLO
-    # conf=0.5 artinya hanya tampilkan yang yakin > 50%
-    results = model(img, conf=0.5)
-
-    # c. Gambar kotak hasil ke gambar
-    annotated_frame = results[0].plot()
-
-    # d. Kembalikan gambar yang sudah dicoret-coret ke layar (NumPy -> AV)
-    return av.VideoFrame.from_ndarray(annotated_frame, format="bgr24")
-
-# 4. Tampilkan WebRTC Streamer
-st.write("Tekan **START** untuk memulai kamera.")
-
-webrtc_streamer(
-    key="sawit-live", 
-    video_frame_callback=video_frame_callback,
-    media_stream_constraints={"video": True, "audio": False}, # Hanya video, tanpa suara
-    rtc_configuration={  # Konfigurasi server STUN (biar lancar di HP)
-        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-    }
-)
+if img_file is not None:
+    # 1. Buka gambar
+    image = Image.open(img_file)
+    
+    # 2. Deteksi dengan YOLO
+    with st.spinner('Sedang menganalisa...'):
+        results = model(image)
+        
+        # 3. Tampilkan Hasil (Plotting)
+        # YOLO menyimpan warna BGR, kita balik ke RGB biar warnanya benar
+        res_plotted = results[0].plot()[:, :, ::-1]
+        
+        st.image(res_plotted, caption="Hasil Deteksi AI", use_container_width=True)
+        
+        # 4. Teks Label (Opsional)
+        # Menampilkan jumlah buah yang terdeteksi
+        boxes = results[0].boxes
+        if len(boxes) > 0:
+            st.success(f"Ditemukan {len(boxes)} objek sawit.")
+        else:
+            st.warning("Tidak ada sawit terdeteksi.")
