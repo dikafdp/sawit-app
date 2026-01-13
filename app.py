@@ -8,7 +8,7 @@ import time
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🌴",
+    page_icon="🥥",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -22,7 +22,7 @@ def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA "ACADEMIC TECH" (DENGAN GARIS TAB BIRU)
+# 3. CSS: TEMA "ACADEMIC TECH" (FIX GARIS MERAH JADI BIRU)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
@@ -73,33 +73,28 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* --- CUSTOM TABS (GARIS BIRU CYAN) --- */
-    
-    /* 1. Container Tab List (Garis bawah utama) */
+    /* --- CUSTOM TABS (SUPAYA RAPI) --- */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
         background-color: transparent;
-        /* INI YANG DIUBAH: Garis bawah pembatas tab jadi Biru Cyan */
-        border-bottom: 2px solid #38bdf8 !important; 
-        padding-bottom: 5px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.2);
     }
-
-    /* 2. Tab yang Tidak Aktif */
     .stTabs [data-baseweb="tab"] {
         background-color: rgba(15, 23, 42, 0.5);
         border-radius: 4px 4px 0 0;
-        color: #94a3b8; /* Warna teks tab mati */
+        color: #94a3b8;
         font-family: 'Share Tech Mono', monospace;
-        border: 1px solid transparent;
-        border-bottom: none;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(56, 189, 248, 0.1) !important;
+        color: #38bdf8 !important;
+        border: 1px solid rgba(56, 189, 248, 0.3) !important;
+        border-bottom: none !important;
     }
 
-    /* 3. Tab yang Aktif (Sedang Dipilih) */
-    .stTabs [aria-selected="true"] {
-        background-color: rgba(56, 189, 248, 0.1) !important; /* Latar Biru transparan */
-        color: #38bdf8 !important; /* Teks Biru Cyan */
-        border: 1px solid #38bdf8 !important; /* Border Biru Cyan */
-        border-bottom: 1px solid #020617 !important; /* Menutupi garis bawah container agar terlihat menyatu */
+    /* !!! INI BAGIAN PENTING: MENGUBAH GARIS MERAH JADI BIRU !!! */
+    div[data-baseweb="tab-highlight"] {
+        background-color: #38bdf8 !important;
     }
 
     /* --- TOMBOL KAMERA & UPLOAD --- */
@@ -110,9 +105,8 @@ st.markdown("""
         padding: 10px;
     }
     
-    /* Tombol Action di dalamnya */
-    [data-testid="stCameraInput"] button, 
-    [data-testid="stFileUploader"] button {
+    /* Tombol Take Photo */
+    [data-testid="stCameraInput"] button {
         background-color: transparent !important;
         border: 1px solid #38bdf8 !important;
         color: #38bdf8 !important;
@@ -122,8 +116,7 @@ st.markdown("""
         transition: all 0.3s ease;
         border-radius: 4px !important;
     }
-    [data-testid="stCameraInput"] button:hover,
-    [data-testid="stFileUploader"] button:hover {
+    [data-testid="stCameraInput"] button:hover {
         background-color: rgba(56, 189, 248, 0.1) !important;
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
@@ -205,6 +198,7 @@ st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
 # --- PILIHAN INPUT (TABS) ---
+# Kita buat Tab agar pilihan Kamera dan Upload terpisah rapi
 tab1, tab2 = st.tabs(["📸 KAMERA LIVE", "📂 UPLOAD FILE"])
 
 img_file = None
