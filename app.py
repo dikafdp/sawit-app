@@ -21,14 +21,14 @@ def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA HIGH-TECH GRID + TABEL RAPI
+# 3. CSS: TEMA HIGH-TECH GRID + COMBINED LAYOUT
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* IMPORT FONT KEREN */
+    /* IMPORT FONT (Rajdhani & Share Tech Mono) */
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
 
-    /* BACKGROUND GRID (TEMA UTAMA) */
+    /* BACKGROUND GRID */
     .stApp {
         background-color: #020617;
         background-image: 
@@ -89,7 +89,7 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* KARTU HASIL UTAMA */
+    /* KARTU HASIL (CONTAINER UTAMA) */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -112,7 +112,7 @@ st.markdown("""
         padding-bottom: 10px;
     }
 
-    /* --- STYLE TABEL RAPI --- */
+    /* --- STYLE UNTUK TABEL DATA (GABUNGAN) --- */
     .info-row {
         display: flex;
         justify-content: space-between;
@@ -123,18 +123,18 @@ st.markdown("""
     
     .info-label { 
         font-family: 'Share Tech Mono', monospace; 
-        color: #94a3b8; /* Warna Label Abu */
+        color: #94a3b8; 
     }
     
     .info-value { 
         font-family: 'Rajdhani', sans-serif; 
-        color: #f1f5f9; /* Warna Value Putih Terang */
+        color: #f1f5f9; 
         font-weight: 700;
         font-size: 1.1rem;
         text-align: right;
     }
 
-    /* --- STYLE FOOTER STATUS BAR --- */
+    /* --- STYLE UNTUK FOOTER TEKNIS (GABUNGAN) --- */
     .status-bar {
         display: flex;
         justify-content: space-between;
@@ -145,7 +145,7 @@ st.markdown("""
         border-radius: 4px;
         font-family: 'Share Tech Mono', monospace;
         font-size: 0.75rem;
-        color: #38bdf8; /* Warna Cyan */
+        color: #38bdf8;
         letter-spacing: 0.5px;
     }
 
@@ -188,20 +188,18 @@ if img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- BAGIAN INI YANG KITA PERBAIKI AGAR TIDAK ERROR ---
-    # Kita menggunakan st.markdown(..., unsafe_allow_html=True)
-    # Agar HTML dirender dengan benar, bukan sebagai teks.
+    # --- HASIL GABUNGAN (TABEL + FOOTER) ---
     
+    # 1. Buka Container Kartu
     st.markdown(f"""
     <div class="tech-card">
         <span class="data-header">>> HASIL KLASIFIKASI CITRA</span>
-        
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
-    # Gambar ditampilkan dengan fungsi Streamlit biasa
+    # 2. Gambar (Streamlit Image)
     st.image(res_plotted, use_container_width=True)
     
-    # Lanjutan HTML untuk Tabel & Footer
+    # 3. Tabel Data & Footer (HTML)
     st.markdown(f"""
         <div style="margin-top: 20px; text-align: left;">
             
@@ -229,5 +227,5 @@ if img_file is not None:
             <span>THRESHOLD: 0.25</span>
             <span>MODUL: CV-PYTORCH</span>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        
+    </div> """, unsafe_allow_html=True)
