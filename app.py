@@ -8,7 +8,7 @@ import time
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🌴",
+    page_icon="🥥",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
