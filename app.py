@@ -21,7 +21,7 @@ def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA "ACADEMIC TECH" (PLUS GAYA UPLOAD & TABS)
+# 3. CSS: TEMA ACADEMIC TECH + PROFILE BADGE
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
@@ -39,9 +39,44 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
-    /* TEXT COLOR */
-    h1, h2, h3, p, span, div, label, small {
+    h1, h2, h3, p, span, div, label, small { color: #e2e8f0; }
+
+    /* --- PROFILE BADGE (POJOK KANAN ATAS) --- */
+    .profile-badge {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(15, 23, 42, 0.8);
+        padding: 5px 15px 5px 5px;
+        border-radius: 50px;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        backdrop-filter: blur(5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .profile-badge:hover {
+        transform: scale(1.05);
+        border-color: #38bdf8;
+    }
+
+    .profile-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #38bdf8;
+        object-fit: cover;
+    }
+
+    .profile-name {
+        font-family: 'Share Tech Mono', monospace;
         color: #e2e8f0;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
     }
 
     /* JUDUL UTAMA */
@@ -55,7 +90,7 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        margin-top: 10px;
+        margin-top: 20px;
         margin-bottom: 5px;
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     }
@@ -72,7 +107,7 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* --- CUSTOM TABS (SUPAYA RAPI) --- */
+    /* TABS */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
         background-color: transparent;
@@ -91,15 +126,13 @@ st.markdown("""
         border-bottom: none !important;
     }
 
-    /* --- TOMBOL KAMERA & UPLOAD --- */
+    /* INPUTS */
     [data-testid="stCameraInput"], [data-testid="stFileUploader"] {
         border: 1px solid rgba(56, 189, 248, 0.3);
         background: rgba(15, 23, 42, 0.8);
         border-radius: 6px;
         padding: 10px;
     }
-    
-    /* Tombol Take Photo */
     [data-testid="stCameraInput"] button {
         background-color: transparent !important;
         border: 1px solid #38bdf8 !important;
@@ -107,15 +140,10 @@ st.markdown("""
         font-family: 'Share Tech Mono', monospace !important;
         text-transform: uppercase;
         letter-spacing: 2px;
-        transition: all 0.3s ease;
         border-radius: 4px !important;
     }
-    [data-testid="stCameraInput"] button:hover {
-        background-color: rgba(56, 189, 248, 0.1) !important;
-        box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-    }
 
-    /* --- KARTU HASIL --- */
+    /* KARTU HASIL */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -125,51 +153,29 @@ st.markdown("""
         margin-top: 30px;
         position: relative;
     }
-
-    /* Hiasan Siku */
     .tech-card::before {
-        content: "";
-        position: absolute;
-        top: -1px; right: -1px;
+        content: ""; position: absolute; top: -1px; right: -1px;
         width: 15px; height: 15px;
-        border-top: 1px solid #38bdf8;
-        border-right: 1px solid #38bdf8;
+        border-top: 1px solid #38bdf8; border-right: 1px solid #38bdf8;
     }
 
     .data-label {
         font-family: 'Share Tech Mono', monospace;
-        color: #94a3b8;
-        font-size: 0.85rem;
-        letter-spacing: 1px;
-        display: block;
-        margin-bottom: 5px;
+        color: #94a3b8; font-size: 0.85rem; letter-spacing: 1px;
+        display: block; margin-bottom: 5px;
     }
-    
     .data-value {
         font-family: 'Rajdhani', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #f1f5f9;
-        display: block;
+        font-size: 1.5rem; font-weight: 700; color: #f1f5f9; display: block;
     }
 
-    .tech-card img {
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        margin-top: 15px;
-        margin-bottom: 15px;
-        border-radius: 4px;
-    }
-    
-    /* Footer Status */
+    /* FOOTER */
     .status-bar {
-        display: flex;
-        justify-content: space-between;
+        display: flex; justify-content: space-between;
         border-top: 1px solid rgba(255,255,255,0.1);
-        padding-top: 10px;
-        margin-top: 10px;
+        padding-top: 10px; margin-top: 10px;
         font-family: 'Share Tech Mono', monospace;
-        font-size: 0.75rem;
-        color: #38bdf8;
+        font-size: 0.75rem; color: #38bdf8;
     }
 
     footer {visibility: hidden;}
@@ -187,59 +193,60 @@ except Exception:
     st.error("Error: File model 'best.pt' tidak ditemukan.")
     st.stop()
 
+# --- PROFILE WIDGET (SIMULASI AKUN) ---
+# Ganti URL foto di bawah ini dengan link foto profil Anda sendiri
+foto_profil = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+nama_user = "Dika Desputra" # Ganti nama Anda
+
+st.markdown(f"""
+    <div class="profile-badge">
+        <img src="{foto_profil}" class="profile-img">
+        <span class="profile-name">{nama_user}</span>
+    </div>
+""", unsafe_allow_html=True)
+
+
 # --- HEADER ---
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# --- PILIHAN INPUT (TABS) ---
-# Kita buat Tab agar pilihan Kamera dan Upload terpisah rapi
+# --- TABS INPUT ---
 tab1, tab2 = st.tabs(["📸 KAMERA LIVE", "📂 UPLOAD FILE"])
-
 img_file = None
 
 with tab1:
     st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO LANGSUNG ]</p>', unsafe_allow_html=True)
     cam_input = st.camera_input("Kamera", label_visibility="hidden")
-    if cam_input:
-        img_file = cam_input
+    if cam_input: img_file = cam_input
 
 with tab2:
     st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH CITRA DARI GALERI ]</p>', unsafe_allow_html=True)
     upl_input = st.file_uploader("Upload", type=['jpg', 'png', 'jpeg'], label_visibility="hidden")
-    if upl_input:
-        img_file = upl_input
+    if upl_input: img_file = upl_input
 
-# --- PROSES & OUTPUT ---
+# --- PROSES ---
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Visualisasi Loading
     progress_bar = st.progress(0)
     for i in range(100):
         time.sleep(0.005)
         progress_bar.progress(i + 1)
     
-    # Deteksi
     results = model(image)
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- TAMPILAN HASIL (SESUAI PATOKAN ANDA) ---
+    # --- HASIL ---
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    
-    # Header Kartu
     st.markdown('<span class="data-label">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
-    # Gambar
     st.image(res_plotted, use_container_width=True)
     
-    # INFORMASI DETEKSI (KOLOM)
     col1, col2 = st.columns(2)
-    
     with col1:
         st.markdown('<span class="data-label">JUMLAH OBJEK</span>', unsafe_allow_html=True)
         st.markdown(f'<span class="data-value">{len(boxes)} UNIT</span>', unsafe_allow_html=True)
-        
     with col2:
         st.markdown('<span class="data-label">STATUS DETEKSI</span>', unsafe_allow_html=True)
         if len(boxes) > 0:
@@ -247,7 +254,6 @@ if img_file is not None:
         else:
             st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
 
-    # FOOTER TEKNIS
     st.markdown(f'''
         <div class="status-bar">
             <span>METODE: YOLOv11-NANO</span>
