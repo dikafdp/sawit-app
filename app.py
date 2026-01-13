@@ -22,14 +22,14 @@ def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA HIGH-TECH GRID + TABEL RAPI
+# 3. CSS: TEMA "ACADEMIC TECH" (FIX GARIS MERAH JADI BIRU)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* IMPORT FONT (Rajdhani & Share Tech Mono) */
+    /* IMPORT FONT */
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
 
-    /* BACKGROUND GRID (TEMA UTAMA) */
+    /* BACKGROUND GRID */
     .stApp {
         background-color: #020617;
         background-image: 
@@ -40,9 +40,12 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
-    h1, h2, h3, p, span, div, label { color: #e2e8f0; }
+    /* TEXT COLOR */
+    h1, h2, h3, p, span, div, label, small {
+        color: #e2e8f0;
+    }
 
-    /* JUDUL (RATA TENGAH) */
+    /* JUDUL UTAMA */
     h1 {
         font-family: 'Rajdhani', sans-serif;
         font-weight: 700;
@@ -54,6 +57,7 @@ st.markdown("""
         -webkit-text-fill-color: transparent;
         text-align: center;
         margin-top: 10px;
+        margin-bottom: 5px;
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     }
     
@@ -69,12 +73,39 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* TOMBOL KAMERA */
-    [data-testid="stCameraInput"] {
+    /* --- CUSTOM TABS (SUPAYA RAPI) --- */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: transparent;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: rgba(15, 23, 42, 0.5);
+        border-radius: 4px 4px 0 0;
+        color: #94a3b8;
+        font-family: 'Share Tech Mono', monospace;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(56, 189, 248, 0.1) !important;
+        color: #38bdf8 !important;
+        border: 1px solid rgba(56, 189, 248, 0.3) !important;
+        border-bottom: none !important;
+    }
+
+    /* !!! INI BAGIAN PENTING: MENGUBAH GARIS MERAH JADI BIRU !!! */
+    div[data-baseweb="tab-highlight"] {
+        background-color: #38bdf8 !important;
+    }
+
+    /* --- TOMBOL KAMERA & UPLOAD --- */
+    [data-testid="stCameraInput"], [data-testid="stFileUploader"] {
         border: 1px solid rgba(56, 189, 248, 0.3);
         background: rgba(15, 23, 42, 0.8);
         border-radius: 6px;
+        padding: 10px;
     }
+    
+    /* Tombol Take Photo */
     [data-testid="stCameraInput"] button {
         background-color: transparent !important;
         border: 1px solid #38bdf8 !important;
@@ -90,7 +121,7 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* KARTU HASIL */
+    /* --- KARTU HASIL --- */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -100,47 +131,48 @@ st.markdown("""
         margin-top: 30px;
         position: relative;
     }
-    
-    /* Header Kartu */
-    .data-header {
+
+    /* Hiasan Siku */
+    .tech-card::before {
+        content: "";
+        position: absolute;
+        top: -1px; right: -1px;
+        width: 15px; height: 15px;
+        border-top: 1px solid #38bdf8;
+        border-right: 1px solid #38bdf8;
+    }
+
+    .data-label {
         font-family: 'Share Tech Mono', monospace;
         color: #94a3b8;
         font-size: 0.85rem;
         letter-spacing: 1px;
         display: block;
-        margin-bottom: 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 10px;
-    }
-
-    /* --- CSS UNTUK TABEL RAPI (YANG ANDA SUKA) --- */
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(56, 189, 248, 0.2); /* Garis Cyan Tipis */
-        font-size: 1rem;
+        margin-bottom: 5px;
     }
     
-    .info-label { 
-        font-family: 'Share Tech Mono', monospace; /* Font Teknis */
-        color: #94a3b8; 
-    }
-    
-    .info-value { 
-        font-family: 'Rajdhani', sans-serif; /* Font Judul */
-        color: #f1f5f9; 
+    .data-value {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.5rem;
         font-weight: 700;
-        font-size: 1.1rem;
+        color: #f1f5f9;
+        display: block;
     }
 
-    /* FOOTER STATUS */
+    .tech-card img {
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        margin-top: 15px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+    
+    /* Footer Status */
     .status-bar {
         display: flex;
         justify-content: space-between;
         border-top: 1px solid rgba(255,255,255,0.1);
         padding-top: 10px;
-        margin-top: 20px;
+        margin-top: 10px;
         font-family: 'Share Tech Mono', monospace;
         font-size: 0.75rem;
         color: #38bdf8;
@@ -161,16 +193,29 @@ except Exception:
     st.error("Error: File model 'best.pt' tidak ditemukan.")
     st.stop()
 
-# --- HEADER (RATA TENGAH) ---
+# --- HEADER ---
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# --- INPUT ---
-st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ SILAKAN AMBIL CITRA BUAH ]</p>', unsafe_allow_html=True)
+# --- PILIHAN INPUT (TABS) ---
+# Kita buat Tab agar pilihan Kamera dan Upload terpisah rapi
+tab1, tab2 = st.tabs(["📸 KAMERA LIVE", "📂 UPLOAD FILE"])
 
-img_file = st.camera_input("Kamera", label_visibility="hidden")
+img_file = None
 
-# --- PROSES ---
+with tab1:
+    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO LANGSUNG ]</p>', unsafe_allow_html=True)
+    cam_input = st.camera_input("Kamera", label_visibility="hidden")
+    if cam_input:
+        img_file = cam_input
+
+with tab2:
+    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH CITRA DARI GALERI ]</p>', unsafe_allow_html=True)
+    upl_input = st.file_uploader("Upload", type=['jpg', 'png', 'jpeg'], label_visibility="hidden")
+    if upl_input:
+        img_file = upl_input
+
+# --- PROSES & OUTPUT ---
 if img_file is not None:
     image = Image.open(img_file)
     
@@ -185,39 +230,34 @@ if img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- HASIL DENGAN TABEL RAPI ---
+    # --- TAMPILAN HASIL (SESUAI PATOKAN ANDA) ---
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
+    
+    # Header Kartu
+    st.markdown('<span class="data-label">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
     # Gambar
     st.image(res_plotted, use_container_width=True)
     
-    # TABEL INFORMASI (GAYA YANG ANDA SUKA)
-    # Kita sesuaikan font-nya sedikit agar match dengan tema background
-    st.markdown(f"""
-        <div style="margin-top: 20px; text-align: left;">
-            <div class="info-row">
-                <span class="info-label">JUMLAH OBJEK</span>
-                <span class="info-value">{len(boxes)} UNIT</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">STATUS DETEKSI</span>
-                <span class="info-value" style="color: {'#4ade80' if len(boxes) > 0 else '#f87171'};">
-                    {'TERIDENTIFIKASI' if len(boxes) > 0 else 'TIDAK JELAS'}
-                </span>
-            </div>
-            <div class="info-row" style="border-bottom: none;">
-                <span class="info-label">MODEL AI</span>
-                <span class="info-value">YOLOv11 Nano</span>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    # INFORMASI DETEKSI (KOLOM)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown('<span class="data-label">JUMLAH OBJEK</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="data-value">{len(boxes)} UNIT</span>', unsafe_allow_html=True)
+        
+    with col2:
+        st.markdown('<span class="data-label">STATUS DETEKSI</span>', unsafe_allow_html=True)
+        if len(boxes) > 0:
+            st.markdown('<span class="data-value" style="color:#4ade80;">TERIDENTIFIKASI</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
 
-    # Footer Teknis
+    # FOOTER TEKNIS
     st.markdown(f'''
         <div class="status-bar">
-            <span>METODE: YOLOv11</span>
-            <span>FRAMEWORK: PYTORCH</span>
+            <span>METODE: YOLOv11-NANO</span>
+            <span>CONFIDENCE THRESHOLD: 0.25</span>
             <span>MODUL: COMPUTER VISION</span>
         </div>
     ''', unsafe_allow_html=True)
