@@ -41,3 +41,4 @@ if img_file is not None:
             st.success(f"Ditemukan {len(boxes)} objek sawit.")
         else:
             st.warning("Tidak ada sawit terdeteksi.")
+
