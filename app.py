@@ -11,7 +11,7 @@ from streamlit_webrtc import webrtc_streamer
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🌴",
+    page_icon="🥥",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -102,6 +102,15 @@ st.markdown("""
         padding: 10px;
     }
     
+    /* EXPANDER (Untuk Slider) */
+    .streamlit-expanderHeader {
+        background-color: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(56, 189, 248, 0.3) !important;
+        color: #38bdf8 !important;
+        font-family: 'Share Tech Mono', monospace !important;
+        border-radius: 6px !important;
+    }
+    
     /* BUTTONS */
     button {
         background-color: transparent !important;
@@ -171,20 +180,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# 4. LOGIKA REAL-TIME (METODE CALLBACK - LEBIH STABIL)
+# 4. LOGIKA REAL-TIME (METODE CALLBACK)
 # ---------------------------------------------------------------------
-# Kita gunakan fungsi biasa, bukan Class, agar tidak error di Python 3.13
+# Kita butuh variabel global/session state untuk menyimpan nilai slider
+if 'conf_val' not in st.session_state:
+    st.session_state.conf_val = 0.25
+
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
     
-    # Deteksi YOLO
-    # (Note: YOLO otomatis handle thread-safety untuk inference)
-    results = model(img)
+    # Ambil nilai confidence dari session state
+    conf_threshold = st.session_state.conf_val
     
-    # Gambar Kotak
+    # Deteksi YOLO dengan confidence dinamis
+    results = model(img, conf=conf_threshold)
+    
     res_plotted = results[0].plot()
-    
-    # Kembalikan ke format VideoWebRTC
     return av.VideoFrame.from_ndarray(res_plotted, format="bgr24")
 
 # ---------------------------------------------------------------------
@@ -193,6 +204,14 @@ def video_frame_callback(frame):
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
+# --- SLIDER PENGATURAN (DI DALAM EXPANDER AGAR RAPI) ---
+with st.expander("⚙️ PENGATURAN SENSITIVITAS AI"):
+    st.markdown('<p style="font-family:Share Tech Mono; font-size:0.8rem; color:#94a3b8;">Atur tingkat keyakinan (Confidence Threshold). Semakin tinggi, semakin selektif.</p>', unsafe_allow_html=True)
+    
+    # Slider mengubah nilai di session state
+    conf_value = st.slider("Confidence Threshold", 0.0, 1.0, 0.25, 0.05, key="conf_val")
+
+# --- TABS INPUT ---
 tab1, tab2, tab3 = st.tabs(["📸 SNAPSHOT", "📂 UPLOAD", "🔴 REAL-TIME"])
 
 img_file = None
@@ -213,24 +232,23 @@ with tab2:
         img_file = upl
         is_static_detection = True
 
-# --- TAB 3: REAL-TIME (DENGAN CALLBACK) ---
+# --- TAB 3: REAL-TIME ---
 with tab3:
     st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ STREAMING LANGSUNG ]</p>', unsafe_allow_html=True)
     st.markdown('<div class="rtc-container">', unsafe_allow_html=True)
     
-    # PANGGILAN WEBRTC YANG SUDAH DIPERBAIKI
     webrtc_streamer(
         key="sawit-realtime",
-        video_frame_callback=video_frame_callback, # Pakai callback, bukan processor_factory
+        video_frame_callback=video_frame_callback,
         rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
         media_stream_constraints={"video": True, "audio": False},
         async_processing=True
     )
     
     st.markdown('</div>', unsafe_allow_html=True)
-    st.info("ℹ️ Klik 'START' dan izinkan akses kamera. (Gunakan laptop/PC untuk performa terbaik)")
+    st.info(f"ℹ️ Menggunakan Threshold: {conf_value}. Klik 'START' untuk mulai.")
 
-# --- LOGIKA TAMPILAN HASIL (HANYA UNTUK TAB 1 & 2) ---
+# --- LOGIKA TAMPILAN HASIL (INPUT STATIS) ---
 if is_static_detection and img_file is not None:
     image = Image.open(img_file)
     
@@ -240,22 +258,22 @@ if is_static_detection and img_file is not None:
         time.sleep(0.005)
         progress_bar.progress(i + 1)
     
-    # Deteksi
-    results = model(image)
+    # Deteksi dengan Confidence dari Slider
+    results = model(image, conf=conf_value)
+    
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # TAMPILAN HASIL (STRUKTUR HTML YANG ANDA SUKA)
+    # TAMPILAN HASIL
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
     st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
     st.image(res_plotted, use_container_width=True)
     
-    # Siapkan Variabel Status
-    status_text = "BERHASIL" if len(boxes) > 0 else "TIDAK JELAS"
+    status_text = "TERIDENTIFIKASI" if len(boxes) > 0 else "TIDAK JELAS"
     status_color = "#4ade80" if len(boxes) > 0 else "#f472b6"
     
-    # HTML Tabel Vertikal
+    # Tabel Info
     st.markdown(f"""
         <div style="margin-top: 20px;">
             <div class="info-row">
@@ -273,14 +291,13 @@ if is_static_detection and img_file is not None:
         </div>
     """, unsafe_allow_html=True)
 
-    # Footer Teknis
+    # Footer Teknis (Update sesuai slider)
     st.markdown(f'''
         <div class="status-bar">
             <span>METODE: YOLOv11</span>
-            <span>THRESHOLD: 0.25</span>
+            <span>THRESHOLD: {conf_value}</span>
             <span>MODUL: CV-PYTORCH</span>
         </div>
     ''', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
-
