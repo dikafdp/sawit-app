@@ -9,14 +9,14 @@ import time
 # 1. KONFIGURASI HALAMAN
 # ---------------------------------------------------------------------
 st.set_page_config(
-    page_title="Sawit AI - Premium Detection",
-    page_icon="✨",
+    page_title="Sawit Intelligence System",
+    page_icon="💠",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
 # ---------------------------------------------------------------------
-# 2. FUNGSI LOAD ANIMASI & MODEL
+# 2. LOAD ASSETS (ANIMASI & MODEL)
 # ---------------------------------------------------------------------
 def load_lottieurl(url):
     try:
@@ -25,197 +25,226 @@ def load_lottieurl(url):
         return r.json()
     except: return None
 
-# Load Animasi: "Scanning Radar" (Modern & Techy)
-lottie_radar = load_lottieurl("https://lottie.host/9c33d077-7670-4cc7-b765-b34e40237731/8q1Yg7Zt6k.json")
+# Animasi "HUD Tech" (Lingkaran digital berputar)
+lottie_tech = load_lottieurl("https://lottie.host/5a909436-7013-40e9-9d50-ca7eb230554e/R5H4s6M6yX.json")
 
 @st.cache_resource
 def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS MODERN DARK MODE (GAYA REFERENSI ANDA)
+# 3. CSS "HIGH-TECH INTERFACE" (SESUAI GAMBAR REFERENSI)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* IMPORT FONT MODERN (INTER) */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    /* IMPORT FONT TEKNIKAL (Rajdhani & Share Tech Mono) */
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
 
-    /* RESET DEFAULT STREAMLIT */
+    /* --- BACKGROUND DEEP SPACE --- */
     .stApp {
-        background-color: #0E0E10 !important;
-        font-family: 'Inter', sans-serif !important;
+        background-color: #020617; /* Hitam Kebiruan Sangat Gelap */
+        background-image: 
+            radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 70%),
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 100% 100%, 40px 40px, 40px 40px; /* Efek Grid Halus */
+        font-family: 'Rajdhani', sans-serif;
     }
 
-    /* WARNA TEKS DEFAULT */
-    h1, h2, h3, p, div, span, label {
-        color: #FFFFFF !important;
+    /* --- TYPOGRAPHY --- */
+    h1, h2, h3, p, span, div {
+        color: #e2e8f0;
     }
 
-    /* JUDUL UTAMA */
+    /* Judul Utama */
     h1 {
-        font-weight: 800 !important;
-        text-align: left; /* Rata kiri biar pas sama animasi */
-        margin-bottom: 0.2rem;
-        background: linear-gradient(to right, #ffffff, #a8a8a8);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 4px; /* Spasi antar huruf lebar */
+        font-size: 2.5rem;
+        background: linear-gradient(to bottom, #ffffff, #94a3b8);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        letter-spacing: -1px;
-        padding-top: 10px;
+        text-align: center;
+        margin-bottom: 0;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Subjudul Kecil (Gaya Terminal) */
+    .tech-subtitle {
+        font-family: 'Share Tech Mono', monospace;
+        color: #38bdf8; /* Cyan Blue */
+        text-align: center;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        opacity: 0.8;
     }
 
-    /* SUBJUDUL */
-    .sub-header {
-        text-align: left;
-        color: #8A8F98 !important;
-        font-size: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    /* CUSTOM TOMBOL KAMERA */
+    /* --- TOMBOL KAMERA (OUTLINE STYLE) --- */
     [data-testid="stCameraInput"] {
-        border: 1px solid #2D3339;
-        background-color: #1C1C21;
-        border-radius: 16px;
-        padding: 10px;
+        border: 1px solid rgba(56, 189, 248, 0.2); /* Border Cyan Tipis */
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 4px; /* Sudut sedikit kotak */
     }
 
     [data-testid="stCameraInput"] button {
-        background-color: #FFFFFF !important;
-        color: #0E0E10 !important;
-        border-radius: 12px !important;
-        border: none !important;
-        padding: 12px 24px !important;
-        font-weight: 700 !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    [data-testid="stCameraInput"] button:hover {
-        background-color: #E1E1E1 !important;
-        transform: scale(1.02);
-    }
-
-    /* KOTAK HASIL (PREMIUM CARD) */
-    .hasil-card {
-        background-color: #1C1C21;
-        border: 1px solid #2D3339;
-        border-radius: 24px;
-        padding: 30px;
-        text-align: center;
-        margin-top: 40px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        animation: fadeUp 0.6s ease-out;
-    }
-
-    .hasil-label {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #8A8F98 !important;
-        margin-bottom: 20px;
-        display: block;
+        background-color: transparent !important;
+        border: 1px solid #38bdf8 !important; /* Garis Cyan */
+        color: #38bdf8 !important;
+        font-family: 'Share Tech Mono', monospace !important;
         text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: all 0.3s ease;
+        border-radius: 2px !important;
+    }
+
+    [data-testid="stCameraInput"] button:hover {
+        background-color: rgba(56, 189, 248, 0.1) !important;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* --- PANEL HASIL (GLASS TECH) --- */
+    .tech-card {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 3px solid #38bdf8; /* Aksen Cyan di kiri */
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        margin-top: 30px;
+        position: relative;
+    }
+
+    /* Garis dekorasi di pojok kartu */
+    .tech-card::before {
+        content: "";
+        position: absolute;
+        top: -1px; right: -1px;
+        width: 20px; height: 20px;
+        border-top: 1px solid #38bdf8;
+        border-right: 1px solid #38bdf8;
+    }
+
+    .data-label {
+        font-family: 'Share Tech Mono', monospace;
+        color: #64748b;
+        font-size: 0.75rem;
         letter-spacing: 1px;
+        display: block;
+        margin-bottom: 5px;
     }
     
-    .hasil-card img {
-        border-radius: 16px;
-        border: 1px solid #2D3339;
-    }
-    
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    .data-value {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f1f5f9;
+        display: block;
     }
 
-    /* BADGES */
-    .stat-badge-success {
-        display: inline-block;
-        background: rgba(46, 204, 113, 0.15);
-        color: #2ecc71 !important;
-        padding: 8px 16px;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 0.9rem;
-        margin-top: 20px;
-        border: 1px solid rgba(46, 204, 113, 0.3);
+    /* Styling Gambar Hasil */
+    .tech-card img {
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
     
-    .stat-badge-warning {
-        display: inline-block;
-        background: rgba(241, 196, 15, 0.15);
-        color: #f1c40f !important;
-        padding: 8px 16px;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 0.9rem;
-        margin-top: 20px;
-        border: 1px solid rgba(241, 196, 15, 0.3);
+    /* Footer Status */
+    .status-bar {
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 10px;
+        margin-top: 10px;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.7rem;
+        color: #38bdf8;
     }
 
+    /* Hapus elemen default */
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# 4. LOGIKA APLIKASI
+# 4. LOGIKA UTAMA
 # ---------------------------------------------------------------------
 
 try:
     model = load_model()
 except Exception:
-    st.error("⚠️ File model 'best.pt' tidak ditemukan.")
+    st.error("SYSTEM ERROR: Model weights not found.")
     st.stop()
 
-# --- HEADER AREA (DENGAN ANIMASI) ---
-# Kita bagi header jadi 2 kolom: Animasi (Kecil) + Teks (Besar)
-col_anim, col_text = st.columns([1, 4])
+# --- HEADER SECTION ---
+col_head1, col_head2 = st.columns([1, 4])
 
-with col_anim:
-    # Tampilkan animasi radar/scan
-    if lottie_radar:
-        st_lottie(lottie_radar, height=80, key="radar_anim")
+with col_head1:
+    # Animasi Tech HUD di kiri
+    if lottie_tech:
+        st_lottie(lottie_tech, height=80, key="tech_anim")
     else:
-        st.write("✨") # Fallback jika animasi gagal load
+        st.write("💠")
 
-with col_text:
-    st.title("Sawit AI")
-    st.markdown('<p class="sub-header">Advanced Computer Vision for Palm Oil Maturity Detection</p>', unsafe_allow_html=True)
+with col_head2:
+    st.markdown("<h1>SAWIT INTELLIGENCE</h1>", unsafe_allow_html=True)
+    st.markdown('<div class="tech-subtitle">/// AI-DRIVEN MATURITY ANALYSIS SYSTEM ///</div>', unsafe_allow_html=True)
 
-st.write("") # Jarak kosong
+# --- INPUT SECTION ---
+st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.8rem; color:#64748b;">[ INITIATE SCANNING SEQUENCE ]</p>', unsafe_allow_html=True)
 
-# --- AREA KAMERA ---
-col_spacer1, col_cam, col_spacer2 = st.columns([1, 4, 1])
+# Area Kamera
+img_file = st.camera_input("Scanner", label_visibility="hidden")
 
-with col_cam:
-    img_file = st.camera_input("Label Tersembunyi", label_visibility="hidden")
-
-# --- PROSES & HASIL ---
+# --- PROCESSING & OUTPUT ---
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Progress Bar sebagai pengganti spinner biasa (Biar lebih keren)
-    progress_text = "Analyzing image structure..."
-    my_bar = st.progress(0, text=progress_text)
-
-    for percent_complete in range(100):
-        time.sleep(0.01) # Simulasi loading cepat
-        my_bar.progress(percent_complete + 1, text=progress_text)
-    my_bar.empty()
-
+    # Progress bar gaya terminal
+    progress_bar = st.progress(0)
+    for i in range(100):
+        time.sleep(0.005) # Efek loading cepat
+        progress_bar.progress(i + 1)
+    
     # Deteksi
     results = model(image)
-    res_plotted = results[0].plot()[:, :, ::-1]
+    res_plotted = results[0].plot()[:, :, ::-1] # BGR to RGB
+    boxes = results[0].boxes
     
-    # --- TAMPILAN HASIL (CARD) ---
-    st.markdown('<div class="hasil-card">', unsafe_allow_html=True)
-    st.markdown('<span class="hasil-label">Analysis Results</span>', unsafe_allow_html=True)
+    # --- HASIL GAYA DASHBOARD TEKNIS ---
+    st.markdown('<div class="tech-card">', unsafe_allow_html=True)
     
+    # Header Kartu
+    st.markdown('<span class="data-label">>> DIAGNOSTIC RESULT</span>', unsafe_allow_html=True)
+    
+    # Tampilkan Gambar
     st.image(res_plotted, use_container_width=True)
     
-    boxes = results[0].boxes
-    if len(boxes) > 0:
-        st.markdown(f'<div class="stat-badge-success">✨ {len(boxes)} Objects Detected Successfully</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="stat-badge-warning">⚠️ No Objects Detected</div>', unsafe_allow_html=True)
+    # Data Analisa
+    col_res1, col_res2 = st.columns(2)
+    
+    with col_res1:
+        st.markdown('<span class="data-label">OBJECTS DETECTED</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="data-value">{len(boxes)} UNITS</span>', unsafe_allow_html=True)
         
+    with col_res2:
+        st.markdown('<span class="data-label">SYSTEM STATUS</span>', unsafe_allow_html=True)
+        if len(boxes) > 0:
+            st.markdown('<span class="data-value" style="color:#4ade80;">OPTIMAL</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('<span class="data-value" style="color:#f472b6;">NO SIGNAL</span>', unsafe_allow_html=True)
+
+    # Footer Teknis (Hiasan)
+    st.markdown(f'''
+        <div class="status-bar">
+            <span>ID: SWT-{int(time.time())}</span>
+            <span>LATENCY: 42ms</span>
+            <span>SECURE CONNECTION</span>
+        </div>
+    ''', unsafe_allow_html=True)
+    
     st.markdown('</div>', unsafe_allow_html=True)
