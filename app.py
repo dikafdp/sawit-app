@@ -4,14 +4,14 @@ from PIL import Image
 import time
 import cv2
 import av
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+from streamlit_webrtc import webrtc_streamer
 
 # ---------------------------------------------------------------------
 # 1. KONFIGURASI HALAMAN
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🌴",
+    page_icon="🥥",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -23,10 +23,10 @@ st.set_page_config(
 def load_model():
     return YOLO("best.pt")
 
-model = load_model() # Load di awal agar global
+model = load_model()
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA ACADEMIC TECH (SESUAI GAMBAR)
+# 3. CSS: TEMA ACADEMIC TECH (BIRU CYAN & DARK GRID)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
@@ -44,6 +44,7 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
+    /* TEXT COLORS */
     h1, h2, h3, p, span, div, label, small { color: #e2e8f0; }
 
     /* JUDUL UTAMA */
@@ -71,7 +72,7 @@ st.markdown("""
         opacity: 0.9;
     }
 
-    /* CUSTOM TABS */
+    /* TABS STYLE */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
         border-bottom: 1px solid rgba(56, 189, 248, 0.2);
@@ -93,7 +94,7 @@ st.markdown("""
         background-color: #38bdf8 !important;
     }
 
-    /* INPUTS & BUTTONS */
+    /* INPUTS & WEBRTC CONTAINER */
     [data-testid="stCameraInput"], [data-testid="stFileUploader"], .rtc-container {
         border: 1px solid rgba(56, 189, 248, 0.3);
         background: rgba(15, 23, 42, 0.8);
@@ -101,7 +102,7 @@ st.markdown("""
         padding: 10px;
     }
     
-    /* Tombol Umum & WebRTC Button */
+    /* BUTTONS */
     button {
         background-color: transparent !important;
         border: 1px solid #38bdf8 !important;
@@ -117,7 +118,7 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* KARTU HASIL */
+    /* TECH CARD (HASIL) */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -132,21 +133,29 @@ st.markdown("""
         width: 15px; height: 15px;
         border-top: 1px solid #38bdf8; border-right: 1px solid #38bdf8;
     }
+    
+    .data-header {
+        font-family: 'Share Tech Mono', monospace;
+        color: #94a3b8; font-size: 0.85rem; letter-spacing: 1px;
+        display: block; margin-bottom: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;
+    }
 
+    /* TABLE ROW */
+    .info-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 0; border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    }
     .data-label {
         font-family: 'Share Tech Mono', monospace;
-        color: #94a3b8; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
+        color: #94a3b8; font-size: 0.9rem; text-transform: uppercase;
     }
     .data-value {
         font-family: 'Rajdhani', sans-serif;
         font-size: 1.3rem; font-weight: 700; color: #f1f5f9; text-align: right;
     }
 
-    .info-row {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 12px 0; border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-    }
-
+    /* FOOTER */
     .status-bar {
         display: flex; justify-content: space-between;
         background: rgba(0,0,0,0.2);
@@ -162,73 +171,70 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# 4. LOGIKA REAL-TIME PROCESSING
+# 4. LOGIKA REAL-TIME (METODE CALLBACK - LEBIH STABIL)
 # ---------------------------------------------------------------------
-class VideoProcessor:
-    def recv(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        
-        # Deteksi Langsung
-        results = model(img)
-        
-        # Gambar Kotak Deteksi di Video
-        res_plotted = results[0].plot()
-        
-        return av.VideoFrame.from_ndarray(res_plotted, format="bgr24")
+# Kita gunakan fungsi biasa, bukan Class, agar tidak error di Python 3.13
+def video_frame_callback(frame):
+    img = frame.to_ndarray(format="bgr24")
+    
+    # Deteksi YOLO
+    # (Note: YOLO otomatis handle thread-safety untuk inference)
+    results = model(img)
+    
+    # Gambar Kotak
+    res_plotted = results[0].plot()
+    
+    # Kembalikan ke format VideoWebRTC
+    return av.VideoFrame.from_ndarray(res_plotted, format="bgr24")
 
 # ---------------------------------------------------------------------
-# 5. UI UTAMA
+# 5. USER INTERFACE UTAMA
 # ---------------------------------------------------------------------
-
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
-# TAB BARU: REAL-TIME
-tab1, tab2, tab3 = st.tabs(["📸 FOTO SNAPSHOT", "📂 UPLOAD FILE", "🔴 REAL-TIME"])
+tab1, tab2, tab3 = st.tabs(["📸 SNAPSHOT", "📂 UPLOAD", "🔴 REAL-TIME"])
 
 img_file = None
-run_detection = False # Flag untuk tab 1 & 2
+is_static_detection = False
 
-# --- TAB 1: SNAPSHOT ---
+# --- TAB 1 & 2: INPUT STATIS ---
 with tab1:
     st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO ]</p>', unsafe_allow_html=True)
     cam = st.camera_input("Kamera", label_visibility="hidden")
     if cam: 
         img_file = cam
-        run_detection = True
+        is_static_detection = True
 
-# --- TAB 2: UPLOAD ---
 with tab2:
     st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH DARI GALERI ]</p>', unsafe_allow_html=True)
     upl = st.file_uploader("Upload", type=['jpg','png','jpeg'], label_visibility="hidden")
     if upl: 
         img_file = upl
-        run_detection = True
+        is_static_detection = True
 
-# --- TAB 3: REAL-TIME VIDEO ---
+# --- TAB 3: REAL-TIME (DENGAN CALLBACK) ---
 with tab3:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ STREAMING DETEKSI LANGSUNG ]</p>', unsafe_allow_html=True)
-    
-    # Bungkus WebRTC dalam container agar CSS tombolnya kena style
+    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ STREAMING LANGSUNG ]</p>', unsafe_allow_html=True)
     st.markdown('<div class="rtc-container">', unsafe_allow_html=True)
     
+    # PANGGILAN WEBRTC YANG SUDAH DIPERBAIKI
     webrtc_streamer(
         key="sawit-realtime",
-        video_processor_factory=VideoProcessor,
+        video_frame_callback=video_frame_callback, # Pakai callback, bukan processor_factory
         rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
         media_stream_constraints={"video": True, "audio": False},
         async_processing=True
     )
     
     st.markdown('</div>', unsafe_allow_html=True)
-    st.info("ℹ️ Klik 'START' untuk memulai kamera. Pastikan memberikan izin akses browser.")
+    st.info("ℹ️ Klik 'START' dan izinkan akses kamera. (Gunakan laptop/PC untuk performa terbaik)")
 
-
-# --- PROSES UNTUK TAB 1 & 2 (FOTO) ---
-if run_detection and img_file is not None:
+# --- LOGIKA TAMPILAN HASIL (HANYA UNTUK TAB 1 & 2) ---
+if is_static_detection and img_file is not None:
     image = Image.open(img_file)
     
-    # Animasi Loading
+    # Visualisasi Loading
     progress_bar = st.progress(0)
     for i in range(100):
         time.sleep(0.005)
@@ -239,19 +245,17 @@ if run_detection and img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # TAMPILAN HASIL (GAYA LIST VERTIKAL)
+    # TAMPILAN HASIL (STRUKTUR HTML YANG ANDA SUKA)
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
+    st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
-    # Header
-    st.markdown('<span class="data-label" style="border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; display:block;">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
-    
-    # Gambar
     st.image(res_plotted, use_container_width=True)
     
-    # List Info
-    status_text = "BERHASIL" if len(boxes) > 0 else "TIDAK JELAS"
+    # Siapkan Variabel Status
+    status_text = "TERIDENTIFIKASI" if len(boxes) > 0 else "TIDAK JELAS"
     status_color = "#4ade80" if len(boxes) > 0 else "#f472b6"
     
+    # HTML Tabel Vertikal
     st.markdown(f"""
         <div style="margin-top: 20px;">
             <div class="info-row">
@@ -269,7 +273,7 @@ if run_detection and img_file is not None:
         </div>
     """, unsafe_allow_html=True)
 
-    # Footer
+    # Footer Teknis
     st.markdown(f'''
         <div class="status-bar">
             <span>METODE: YOLOv11</span>
