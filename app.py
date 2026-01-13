@@ -184,7 +184,7 @@ with tab3:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------
-# 6. LOGIKA HASIL (Perbaikan di sini agar tidak muncul kode HTML)
+# 6. LOGIKA HASIL
 # ---------------------------------------------------------------------
 if is_static and img_file is not None:
     image = Image.open(img_file)
@@ -213,42 +213,38 @@ if is_static and img_file is not None:
         status_color = "#f472b6" # Merah Muda
 
     # TAMPILKAN HASIL
-    # 1. Buka Kartu
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
     st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
-    # 2. Gambar (Pakai st.image biasa agar aman)
     st.image(res_plotted, use_container_width=True)
     
-    # 3. Tabel Data (Disimpan dalam variabel string dulu agar RAPI)
+    # PERBAIKAN: HTML String dibuat rata kiri (tanpa spasi di depan tag <div>)
+    # Ini mencegah Streamlit menganggapnya sebagai "Code Block"
     html_tabel = f"""
-        <div style="margin-top: 20px;">
-            <div class="info-row">
-                <span class="data-label">JUMLAH OBJEK</span>
-                <span class="data-value">{jml_objek} UNIT</span>
-            </div>
-            
-            <div class="info-row">
-                <span class="data-label">RATA-RATA AKURASI</span>
-                <span class="data-value" style="color: #38bdf8;">{akurasi_text}</span>
-            </div>
-
-            <div class="info-row">
-                <span class="data-label">STATUS DETEKSI</span>
-                <span class="data-value" style="color: {status_color};">{status_text}</span>
-            </div>
-            
-            <div class="info-row" style="border-bottom: none;">
-                <span class="data-label">MODEL AI</span>
-                <span class="data-value">YOLOv11 Nano</span>
-            </div>
-        </div>
-    """
+<div style="margin-top: 20px;">
+    <div class="info-row">
+        <span class="data-label">JUMLAH OBJEK</span>
+        <span class="data-value">{jml_objek} UNIT</span>
+    </div>
+    <div class="info-row">
+        <span class="data-label">RATA-RATA AKURASI</span>
+        <span class="data-value" style="color: #38bdf8;">{akurasi_text}</span>
+    </div>
+    <div class="info-row">
+        <span class="data-label">STATUS DETEKSI</span>
+        <span class="data-value" style="color: {status_color};">{status_text}</span>
+    </div>
+    <div class="info-row" style="border-bottom: none;">
+        <span class="data-label">MODEL AI</span>
+        <span class="data-value">YOLOv11 Nano</span>
+    </div>
+</div>
+"""
     
-    # Render Tabel HTML (PENTING: unsafe_allow_html=True)
+    # Render Tabel HTML
     st.markdown(html_tabel, unsafe_allow_html=True)
 
-    # 4. Footer
+    # Footer
     st.markdown(f'''
         <div class="status-bar">
             <span>CONF: {st.session_state.conf}</span>
@@ -257,6 +253,4 @@ if is_static and img_file is not None:
         </div>
     ''', unsafe_allow_html=True)
     
-    # Tutup Kartu
     st.markdown('</div>', unsafe_allow_html=True)
-
