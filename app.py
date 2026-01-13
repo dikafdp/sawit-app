@@ -22,14 +22,14 @@ def load_model():
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA HIGH-TECH GRID + TABEL RAPI
+# 3. CSS: TEMA HIGH-TECH GRID (VISUAL TETAP KEREN)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
     /* IMPORT FONT (Rajdhani & Share Tech Mono) */
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
 
-    /* BACKGROUND GRID (TEMA UTAMA) */
+    /* BACKGROUND GRID */
     .stApp {
         background-color: #020617;
         background-image: 
@@ -90,7 +90,7 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* KARTU HASIL */
+    /* KARTU HASIL (GLASS TECH) */
     .tech-card {
         background: rgba(15, 23, 42, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -101,8 +101,17 @@ st.markdown("""
         position: relative;
     }
     
-    /* Header Kartu */
-    .data-header {
+    .tech-card::before {
+        content: "";
+        position: absolute;
+        top: -1px; right: -1px;
+        width: 15px; height: 15px;
+        border-top: 1px solid #38bdf8;
+        border-right: 1px solid #38bdf8;
+    }
+
+    /* Header di dalam Kartu */
+    .card-header {
         font-family: 'Share Tech Mono', monospace;
         color: #94a3b8;
         font-size: 0.85rem;
@@ -113,25 +122,22 @@ st.markdown("""
         padding-bottom: 10px;
     }
 
-    /* --- CSS UNTUK TABEL RAPI (YANG ANDA SUKA) --- */
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(56, 189, 248, 0.2); /* Garis Cyan Tipis */
-        font-size: 1rem;
+    /* TEXT LABEL & VALUE (Untuk Kolom) */
+    .data-label {
+        font-family: 'Share Tech Mono', monospace;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 5px;
     }
     
-    .info-label { 
-        font-family: 'Share Tech Mono', monospace; /* Font Teknis */
-        color: #94a3b8; 
-    }
-    
-    .info-value { 
-        font-family: 'Rajdhani', sans-serif; /* Font Judul */
-        color: #f1f5f9; 
+    .data-value {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.6rem;
         font-weight: 700;
-        font-size: 1.1rem;
+        color: #f1f5f9;
+        display: block;
     }
 
     /* FOOTER STATUS */
@@ -142,7 +148,7 @@ st.markdown("""
         padding-top: 10px;
         margin-top: 20px;
         font-family: 'Share Tech Mono', monospace;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #38bdf8;
     }
 
@@ -161,7 +167,7 @@ except Exception:
     st.error("Error: File model 'best.pt' tidak ditemukan.")
     st.stop()
 
-# --- HEADER (RATA TENGAH) ---
+# --- HEADER ---
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
@@ -174,7 +180,7 @@ img_file = st.camera_input("Kamera", label_visibility="hidden")
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Visualisasi Loading
+    # Loading
     progress_bar = st.progress(0)
     for i in range(100):
         time.sleep(0.005)
@@ -185,39 +191,33 @@ if img_file is not None:
     res_plotted = results[0].plot()[:, :, ::-1]
     boxes = results[0].boxes
     
-    # --- HASIL DENGAN TABEL RAPI ---
+    # --- HASIL (LAYOUT GABUNGAN YANG ANDA MINTA) ---
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
+    st.markdown('<span class="card-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
-    # Gambar
+    # Gambar Hasil
     st.image(res_plotted, use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True) # Jarak sedikit
     
-    # TABEL INFORMASI (GAYA YANG ANDA SUKA)
-    # Kita sesuaikan font-nya sedikit agar match dengan tema background
-    st.markdown(f"""
-        <div style="margin-top: 20px; text-align: left;">
-            <div class="info-row">
-                <span class="info-label">JUMLAH OBJEK</span>
-                <span class="info-value">{len(boxes)} UNIT</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">STATUS DETEKSI</span>
-                <span class="info-value" style="color: {'#4ade80' if len(boxes) > 0 else '#f87171'};">
-                    {'TERIDENTIFIKASI' if len(boxes) > 0 else 'TIDAK JELAS'}
-                </span>
-            </div>
-            <div class="info-row" style="border-bottom: none;">
-                <span class="info-label">MODEL AI</span>
-                <span class="info-value">YOLOv11 Nano</span>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    # --- BAGIAN YANG ANDA REQUEST (COLUMNS) ---
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown('<span class="data-label">JUMLAH OBJEK</span>', unsafe_allow_html=True)
+        st.markdown(f'<span class="data-value">{len(boxes)} UNIT</span>', unsafe_allow_html=True)
+        
+    with col2:
+        st.markdown('<span class="data-label">STATUS DETEKSI</span>', unsafe_allow_html=True)
+        if len(boxes) > 0:
+            st.markdown('<span class="data-value" style="color:#4ade80;">TERIDENTIFIKASI</span>', unsafe_allow_html=True)
+        else:
+            st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
 
-    # Footer Teknis
+    # --- FOOTER TEKNIS REQUEST ANDA ---
     st.markdown(f'''
         <div class="status-bar">
-            <span>METODE: YOLOv11</span>
-            <span>FRAMEWORK: PYTORCH</span>
+            <span>METODE: YOLOv11-NANO</span>
+            <span>CONFIDENCE THRESHOLD: 0.25</span>
             <span>MODUL: COMPUTER VISION</span>
         </div>
     ''', unsafe_allow_html=True)
