@@ -7,8 +7,8 @@ import time
 # 1. KONFIGURASI HALAMAN
 # ---------------------------------------------------------------------
 st.set_page_config(
-    page_title="Sistem Deteksi Sawit",
-    page_icon="🥥",
+    page_title="Deteksi Sawit YOLOv11",
+    page_icon="🎓",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -18,166 +18,124 @@ st.set_page_config(
 # ---------------------------------------------------------------------
 @st.cache_resource
 def load_model():
-    # Pastikan file best.pt ada di folder yang sama
     return YOLO("best.pt")
 
 # ---------------------------------------------------------------------
-# 3. CSS: TEMA "ACADEMIC TECH" (FIX GARIS MERAH JADI BIRU)
+# 3. CSS: TEMA DARK GRID (TAPI FONT PROFESSIONAL)
 # ---------------------------------------------------------------------
 st.markdown("""
     <style>
-    /* IMPORT FONT */
-    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
+    /* IMPORT FONT ROBOTO (Standar Akademis & Profesional) */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-    /* BACKGROUND GRID */
+    /* --- BACKGROUND (TEMA GRID YANG ANDA SUKA) --- */
     .stApp {
-        background-color: #020617;
+        background-color: #020617; /* Hitam Kebiruan Gelap */
+        /* Efek Grid Halus tetap dipertahankan karena bagus */
         background-image: 
             radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 70%),
             linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
         background-size: 100% 100%, 40px 40px, 40px 40px;
-        font-family: 'Rajdhani', sans-serif;
+        font-family: 'Roboto', sans-serif; /* Font Ganti Jadi Normal */
     }
 
-    /* TEXT COLOR */
-    h1, h2, h3, p, span, div, label, small {
+    /* --- TYPOGRAPHY (TEXT) --- */
+    h1, h2, h3, p, span, div, label {
         color: #e2e8f0;
     }
 
-    /* JUDUL UTAMA */
+    /* JUDUL UTAMA (RATA TENGAH & BERSIH) */
     h1 {
-        font-family: 'Rajdhani', sans-serif;
+        font-family: 'Roboto', sans-serif;
         font-weight: 700;
-        font-size: 2.2rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        background: linear-gradient(to bottom, #ffffff, #94a3b8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        margin-top: 10px;
+        font-size: 2.5rem;
+        text-align: center; /* RATA TENGAH */
         margin-bottom: 5px;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-    }
-    
-    /* SUBJUDUL */
-    .tech-subtitle {
-        font-family: 'Share Tech Mono', monospace;
-        color: #38bdf8;
-        text-align: center;
-        font-size: 0.9rem;
+        color: #ffffff !important;
+        text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 30px;
-        text-transform: uppercase;
-        opacity: 0.9;
-    }
-
-    /* --- CUSTOM TABS (SUPAYA RAPI) --- */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background-color: transparent;
-        border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: rgba(15, 23, 42, 0.5);
-        border-radius: 4px 4px 0 0;
-        color: #94a3b8;
-        font-family: 'Share Tech Mono', monospace;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: rgba(56, 189, 248, 0.1) !important;
-        color: #38bdf8 !important;
-        border: 1px solid rgba(56, 189, 248, 0.3) !important;
-        border-bottom: none !important;
-    }
-
-    /* !!! INI BAGIAN PENTING: MENGUBAH GARIS MERAH JADI BIRU !!! */
-    div[data-baseweb="tab-highlight"] {
-        background-color: #38bdf8 !important;
-    }
-
-    /* --- TOMBOL KAMERA & UPLOAD --- */
-    [data-testid="stCameraInput"], [data-testid="stFileUploader"] {
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        background: rgba(15, 23, 42, 0.8);
-        border-radius: 6px;
-        padding: 10px;
     }
     
-    /* Tombol Take Photo */
-    [data-testid="stCameraInput"] button {
-        background-color: transparent !important;
-        border: 1px solid #38bdf8 !important;
-        color: #38bdf8 !important;
-        font-family: 'Share Tech Mono', monospace !important;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        transition: all 0.3s ease;
-        border-radius: 4px !important;
-    }
-    [data-testid="stCameraInput"] button:hover {
-        background-color: rgba(56, 189, 248, 0.1) !important;
-        box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+    /* SUBJUDUL (INFORMASI METODE) */
+    .subtitle {
+        font-family: 'Roboto', sans-serif;
+        color: #94a3b8; /* Abu-abu kalem */
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 400;
+        margin-bottom: 40px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 20px;
     }
 
-    /* --- KARTU HASIL --- */
-    .tech-card {
-        background: rgba(15, 23, 42, 0.7);
+    /* --- TOMBOL KAMERA (CLEAN STYLE) --- */
+    [data-testid="stCameraInput"] {
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-left: 3px solid #38bdf8;
-        backdrop-filter: blur(10px);
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 8px;
+    }
+
+    [data-testid="stCameraInput"] button {
+        background-color: #2563eb !important; /* Biru Akademis */
+        color: white !important;
+        border: none !important;
+        border-radius: 5px !important;
+        font-weight: 500 !important;
+        padding: 10px 20px !important;
+        transition: all 0.3s ease;
+    }
+
+    [data-testid="stCameraInput"] button:hover {
+        background-color: #1d4ed8 !important;
+        transform: translateY(-2px);
+    }
+
+    /* --- KARTU HASIL (SIMPLE & ELEGANT) --- */
+    .result-card {
+        background: rgba(30, 41, 59, 0.5); /* Semi transparan */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
         padding: 25px;
-        margin-top: 30px;
-        position: relative;
+        margin-top: 20px;
+        text-align: center;
     }
 
-    /* Hiasan Siku */
-    .tech-card::before {
-        content: "";
-        position: absolute;
-        top: -1px; right: -1px;
-        width: 15px; height: 15px;
-        border-top: 1px solid #38bdf8;
-        border-right: 1px solid #38bdf8;
-    }
-
-    .data-label {
-        font-family: 'Share Tech Mono', monospace;
-        color: #94a3b8;
-        font-size: 0.85rem;
-        letter-spacing: 1px;
-        display: block;
-        margin-bottom: 5px;
-    }
-    
-    .data-value {
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 1.5rem;
+    .result-header {
+        font-size: 1.1rem;
         font-weight: 700;
-        color: #f1f5f9;
+        color: #ffffff;
+        margin-bottom: 15px;
         display: block;
+        letter-spacing: 0.5px;
     }
 
-    .tech-card img {
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        margin-top: 15px;
-        margin-bottom: 15px;
-        border-radius: 4px;
+    /* Gambar Hasil */
+    .result-card img {
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    /* Footer Status */
-    .status-bar {
+    /* Tabel Info Sederhana */
+    .info-row {
         display: flex;
         justify-content: space-between;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        padding-top: 10px;
-        margin-top: 10px;
-        font-family: 'Share Tech Mono', monospace;
-        font-size: 0.75rem;
-        color: #38bdf8;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 0.95rem;
+    }
+    .info-label { color: #94a3b8; }
+    .info-value { color: #f8fafc; font-weight: 600; }
+
+    /* Footer Text */
+    .footer-text {
+        text-align: center;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 30px;
     }
 
+    /* Hapus elemen default Streamlit */
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     </style>
@@ -193,73 +151,54 @@ except Exception:
     st.error("Error: File model 'best.pt' tidak ditemukan.")
     st.stop()
 
-# --- HEADER ---
+# --- HEADER (RATA TENGAH, TANPA LOGO SAMPING) ---
+# Tidak pakai kolom lagi, langsung tulis biar center
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
-st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Implementasi Algoritma YOLOv11 untuk Klasifikasi Buah Sawit</p>', unsafe_allow_html=True)
 
-# --- PILIHAN INPUT (TABS) ---
-# Kita buat Tab agar pilihan Kamera dan Upload terpisah rapi
-tab1, tab2 = st.tabs(["📸 KAMERA LIVE", "📂 UPLOAD FILE"])
-
-img_file = None
-
-with tab1:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ AMBIL FOTO LANGSUNG ]</p>', unsafe_allow_html=True)
-    cam_input = st.camera_input("Kamera", label_visibility="hidden")
-    if cam_input:
-        img_file = cam_input
-
-with tab2:
-    st.markdown('<p style="text-align:center; font-family:Share Tech Mono; font-size:0.9rem; color:#94a3b8;">[ PILIH CITRA DARI GALERI ]</p>', unsafe_allow_html=True)
-    upl_input = st.file_uploader("Upload", type=['jpg', 'png', 'jpeg'], label_visibility="hidden")
-    if upl_input:
-        img_file = upl_input
+# --- INPUT KAMERA ---
+st.markdown('<p style="text-align:center; color:#cbd5e1; margin-bottom:10px;">Silakan ambil foto buah sawit:</p>', unsafe_allow_html=True)
+img_file = st.camera_input("Kamera", label_visibility="hidden")
 
 # --- PROSES & OUTPUT ---
 if img_file is not None:
     image = Image.open(img_file)
     
-    # Visualisasi Loading
-    progress_bar = st.progress(0)
-    for i in range(100):
-        time.sleep(0.005)
-        progress_bar.progress(i + 1)
+    # Loading sederhana
+    with st.spinner('Sedang menganalisis citra...'):
+        # Deteksi
+        results = model(image)
+        res_plotted = results[0].plot()[:, :, ::-1] # BGR ke RGB
+        boxes = results[0].boxes
     
-    # Deteksi
-    results = model(image)
-    res_plotted = results[0].plot()[:, :, ::-1]
-    boxes = results[0].boxes
+    # --- TAMPILAN HASIL (BERSIH & RAPI) ---
+    st.markdown('<div class="result-card">', unsafe_allow_html=True)
+    st.markdown('<span class="result-header">HASIL ANALISIS</span>', unsafe_allow_html=True)
     
-    # --- TAMPILAN HASIL (SESUAI PATOKAN ANDA) ---
-    st.markdown('<div class="tech-card">', unsafe_allow_html=True)
-    
-    # Header Kartu
-    st.markdown('<span class="data-label">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
-    
-    # Gambar
+    # Tampilkan Gambar
     st.image(res_plotted, use_container_width=True)
     
-    # INFORMASI DETEKSI (KOLOM)
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown('<span class="data-label">JUMLAH OBJEK</span>', unsafe_allow_html=True)
-        st.markdown(f'<span class="data-value">{len(boxes)} UNIT</span>', unsafe_allow_html=True)
-        
-    with col2:
-        st.markdown('<span class="data-label">STATUS DETEKSI</span>', unsafe_allow_html=True)
-        if len(boxes) > 0:
-            st.markdown('<span class="data-value" style="color:#4ade80;">TERIDENTIFIKASI</span>', unsafe_allow_html=True)
-        else:
-            st.markdown('<span class="data-value" style="color:#f472b6;">TIDAK JELAS</span>', unsafe_allow_html=True)
-
-    # FOOTER TEKNIS
-    st.markdown(f'''
-        <div class="status-bar">
-            <span>METODE: YOLOv11-NANO</span>
-            <span>CONFIDENCE THRESHOLD: 0.25</span>
-            <span>MODUL: COMPUTER VISION</span>
+    # Informasi (Tabel Rapi)
+    st.markdown(f"""
+        <div style="margin-top: 20px; text-align: left;">
+            <div class="info-row">
+                <span class="info-label">Jumlah Terdeteksi</span>
+                <span class="info-value">{len(boxes)} Buah</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status Deteksi</span>
+                <span class="info-value" style="color: {'#4ade80' if len(boxes) > 0 else '#f87171'};">
+                    {'BERHASIL' if len(boxes) > 0 else 'TIDAK ADA OBJEK'}
+                </span>
+            </div>
+            <div class="info-row" style="border-bottom: none;">
+                <span class="info-label">Model AI</span>
+                <span class="info-value">YOLOv11 Nano</span>
+            </div>
         </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+
+# --- FOOTER ---
+st.markdown('<div class="footer-text">Sistem Cerdas Perkebunan © 2024 • Powered by YOLOv11</div>', unsafe_allow_html=True)
