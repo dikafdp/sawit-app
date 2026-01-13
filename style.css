@@ -1,0 +1,42 @@
+/* File: style.css */
+
+/* Background Gradasi */
+.stApp {
+    background: linear-gradient(to bottom right, #f0fdf4, #dcfce7);
+}
+
+/* Judul */
+h1 {
+    color: #166534;
+    text-align: center;
+    font-family: 'Helvetica', sans-serif;
+    text-shadow: 2px 2px 4px #cccccc;
+}
+
+/* Tombol Kamera */
+div.stButton > button {
+    background-color: #f97316;
+    color: white;
+    border-radius: 12px;
+    padding: 10px 24px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+div.stButton > button:hover {
+    background-color: #ea580c;
+    transform: scale(1.02);
+}
+
+/* Kotak Hasil */
+.hasil-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid #22c55e;
+    text-align: center;
+}
+
+/* Sembunyikan Footer */
+footer {visibility: hidden;}
+#MainMenu {visibility: hidden;}
