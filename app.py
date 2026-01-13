@@ -11,7 +11,7 @@ from streamlit_webrtc import webrtc_streamer
 # ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
-    page_icon="🥥",
+    page_icon="🌴",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -205,7 +205,7 @@ if is_static and img_file is not None:
     if jml_objek > 0:
         avg_conf = boxes.conf.mean().item() * 100
         akurasi_text = f"{avg_conf:.1f}%"
-        status_text = "TERIDENTIFIKASI"
+        status_text = "BERHASIL"
         status_color = "#4ade80" # Hijau
     else:
         akurasi_text = "0%"
@@ -259,3 +259,4 @@ if is_static and img_file is not None:
     
     # Tutup Kartu
     st.markdown('</div>', unsafe_allow_html=True)
+
