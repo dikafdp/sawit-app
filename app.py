@@ -6,9 +6,6 @@ import cv2
 import av
 from streamlit_webrtc import webrtc_streamer
 
-# ---------------------------------------------------------------------
-# 1. KONFIGURASI HALAMAN
-# ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Sistem Deteksi Sawit",
     page_icon="🌴",
@@ -16,18 +13,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------------------------------------------------------------------
-# 2. LOAD MODEL
-# ---------------------------------------------------------------------
+# LOAD MODEL
 @st.cache_resource
 def load_model():
     return YOLO("best.pt")
 
 model = load_model()
 
-# ---------------------------------------------------------------------
-# 3. CSS: TEMA ACADEMIC TECH
-# ---------------------------------------------------------------------
+# THEME
+
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap');
@@ -82,7 +76,6 @@ st.markdown("""
         border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.8); border-radius: 6px; padding: 10px;
     }
     
-    /* EXPANDER */
     .streamlit-expanderHeader {
         background-color: rgba(15, 23, 42, 0.8) !important;
         color: #38bdf8 !important;
@@ -98,7 +91,6 @@ st.markdown("""
     }
     button:hover { background-color: rgba(56, 189, 248, 0.1) !important; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
 
-    /* TECH CARD RESULT */
     .tech-card {
         background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-left: 3px solid #38bdf8;
         backdrop-filter: blur(10px); padding: 25px; margin-top: 30px; position: relative;
@@ -124,9 +116,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------------
-# 4. SESSION STATE
-# ---------------------------------------------------------------------
+# SESSION STATE
 if 'conf' not in st.session_state: st.session_state.conf = 0.25
 if 'iou' not in st.session_state: st.session_state.iou = 0.45
 if 'line_width' not in st.session_state: st.session_state.line_width = 2
@@ -138,9 +128,7 @@ def video_frame_callback(frame):
     res_plotted = results[0].plot(line_width=st.session_state.line_width)
     return av.VideoFrame.from_ndarray(res_plotted, format="bgr24")
 
-# ---------------------------------------------------------------------
-# 5. UI UTAMA
-# ---------------------------------------------------------------------
+
 st.markdown("<h1>SISTEM DETEKSI KEMATANGAN SAWIT</h1>", unsafe_allow_html=True)
 st.markdown('<div class="tech-subtitle">/// IMPLEMENTASI ALGORITMA DEEP LEARNING YOLOV11 ///</div>', unsafe_allow_html=True)
 
@@ -154,7 +142,6 @@ with st.expander("⚙️ PANEL KONTROL PARAMETER"):
     with c3:
         st.session_state.line_width = st.slider("Tebal Garis", 1, 5, 2, 1)
 
-# TABS INPUT
 tab1, tab2, tab3 = st.tabs(["📸 SNAPSHOT", "📂 UPLOAD", "🔴 REAL-TIME"])
 
 img_file = None
@@ -183,9 +170,7 @@ with tab3:
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------------------------------------------------------------
-# 6. LOGIKA HASIL
-# ---------------------------------------------------------------------
+# LOGIC
 if is_static and img_file is not None:
     image = Image.open(img_file)
     
@@ -206,20 +191,17 @@ if is_static and img_file is not None:
         avg_conf = boxes.conf.mean().item() * 100
         akurasi_text = f"{avg_conf:.1f}%"
         status_text = "BERHASIL"
-        status_color = "#4ade80" # Hijau
+        status_color = "#4ade80"
     else:
         akurasi_text = "0%"
         status_text = "TIDAK JELAS"
-        status_color = "#f472b6" # Merah Muda
+        status_color = "#f472b6"
 
-    # TAMPILKAN HASIL
     st.markdown('<div class="tech-card">', unsafe_allow_html=True)
     st.markdown('<span class="data-header">>> HASIL KLASIFIKASI CITRA</span>', unsafe_allow_html=True)
     
     st.image(res_plotted, use_container_width=True)
     
-    # PERBAIKAN: HTML String dibuat rata kiri (tanpa spasi di depan tag <div>)
-    # Ini mencegah Streamlit menganggapnya sebagai "Code Block"
     html_tabel = f"""
 <div style="margin-top: 20px;">
     <div class="info-row">
@@ -241,7 +223,7 @@ if is_static and img_file is not None:
 </div>
 """
     
-    # Render Tabel HTML
+    # Render HTML
     st.markdown(html_tabel, unsafe_allow_html=True)
 
     # Footer
@@ -254,3 +236,4 @@ if is_static and img_file is not None:
     ''', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+
